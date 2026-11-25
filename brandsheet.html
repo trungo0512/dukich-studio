@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brandsheet - Editorial Study Note Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+  <style>
+    :root,
+    html[data-palette="1"] {
+      /* Default Palette 1 (Light): Summer Vibe - Tangerine #FF5722 (Italic) + Lagoon #00838F (Accent) */
+      --paper: #F6FBF9;
+      --paper-elevated: #EAF4F0;
+      --card-bg: rgba(246, 251, 249, 0.90);
+      --toolbar-bg: rgba(246, 251, 249, 0.93);
+      --paper-border: rgba(0, 131, 143, 0.16);
+      --grid-rgb: 15, 41, 38;
+      --ink-primary: #0F2926;
+      --ink-secondary: #54736E;
+      --brand-emphasis: #FF5722;
+      --ghost-stroke: rgba(255, 87, 34, 0.24);
+      --accent: #00838F;
+      --accent-soft: rgba(0, 131, 143, 0.11);
+      --hl-color: rgba(255, 214, 48, 0.80);
+      --hl-text: #0A1F1C;
+      --progress-track: rgba(15, 41, 38, 0.14);
+      --progress-done: rgba(15, 41, 38, 0.34);
+      --wireframe-ink: #00838F;
+      --btn-active-bg: #00838F;
+      --btn-active-fg: #F6FBF9;
+      --grid-alpha: 0.04;
+      --grid-size: 28px;
+
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', sans-serif;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    /* Palette 2 (Light): Deep Lake - Glacier Ice #9CBFD6 + Granite Black #2B2E36 + Steppe Yellow #C4A654 + Deep Lake Blue #1C4066 */
+    html[data-palette="2"] {
+      --paper: #F2F7FA;
+      --paper-elevated: #E5EFF6;
+      --card-bg: rgba(247, 250, 253, 0.92);
+      --toolbar-bg: rgba(242, 247, 250, 0.93);
+      --paper-border: rgba(28, 64, 102, 0.16);
+      --grid-rgb: 43, 46, 54;
+      --ink-primary: #2B2E36;
+      --ink-secondary: #53667A;
+      --brand-emphasis: #C4A654;
+      --ghost-stroke: rgba(156, 191, 214, 0.42);
+      --accent: #1C4066;
+      --accent-soft: rgba(28, 64, 102, 0.11);
+      --hl-color: rgba(156, 191, 214, 0.62);
+      --hl-text: #2B2E36;
+      --progress-track: rgba(43, 46, 54, 0.14);
+      --progress-done: rgba(43, 46, 54, 0.34);
+      --wireframe-ink: #1C4066;
+      --btn-active-bg: #1C4066;
+      --btn-active-fg: #F2F7FA;
+    }
+
+    /* Palette 3 (Dark): Starry Night - Navy Blue #0D1B2A + Golden Yellow #F4B400 (Main) + Sky Blue #D0E3FF (Secondary) + Venus #BAD6EB */
+    html[data-palette="3"] {
+      --paper: #0D1B2A;
+      --paper-elevated: #142538;
+      --card-bg: rgba(20, 37, 56, 0.86);
+      --toolbar-bg: rgba(13, 27, 42, 0.92);
+      --paper-border: rgba(242, 243, 243, 0.13);
+      --grid-rgb: 242, 243, 243;
+      --ink-primary: #F2F3F3;
+      --ink-secondary: #BAD6EB;
+      --brand-emphasis: #F4B400;
+      --ghost-stroke: rgba(208, 227, 255, 0.22);
+      --accent: #D0E3FF;
+      --accent-soft: rgba(208, 227, 255, 0.14);
+      --hl-color: rgba(244, 180, 0, 0.46);
+      --hl-text: #FFFDF2;
+      --progress-track: rgba(242, 243, 243, 0.14);
+      --progress-done: rgba(242, 243, 243, 0.36);
+      --wireframe-ink: #F2F3F3;
+      --btn-active-bg: #F4B400;
+      --btn-active-fg: #0D1B2A;
+    }
+
+    /* Palette 4 (Dark): Cyberpunk Tokyo - Electric Neon Blue #00D4FF + Cyber Pink #FF2E88 */
+    html[data-palette="4"] {
+      --paper: #090B14;
+      --paper-elevated: #111526;
+      --card-bg: rgba(17, 21, 38, 0.88);
+      --toolbar-bg: rgba(9, 11, 20, 0.94);
+      --paper-border: rgba(0, 212, 255, 0.20);
+      --grid-rgb: 0, 212, 255;
+      --ink-primary: #EEF4FF;
+      --ink-secondary: #8B9BBF;
+      --brand-emphasis: #00D4FF;
+      --ghost-stroke: rgba(0, 212, 255, 0.26);
+      --accent: #FF2E88;
+      --accent-soft: rgba(255, 46, 136, 0.16);
+      --hl-color: rgba(0, 212, 255, 0.42);
+      --hl-text: #F2FAFF;
+      --progress-track: rgba(238, 244, 255, 0.15);
+      --progress-done: rgba(0, 212, 255, 0.45);
+      --wireframe-ink: #00D4FF;
+      --btn-active-bg: #00D4FF;
+      --btn-active-fg: #090B14;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--paper);
+      color: var(--ink-primary);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--ink-primary);
+      line-height: 1.65;
+    }
+
+    /* Graph paper background utility */
+    .paper-grid {
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(to right, rgba(var(--grid-rgb), var(--grid-alpha)) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(var(--grid-rgb), var(--grid-alpha)) 1px, transparent 1px);
+      background-size: var(--grid-size) var(--grid-size);
+      background-position: -1px -1px;
+    }
+
+    /* Fixed Corner Grid Toggle */
+    .corner-toolbar {
+      position: fixed;
+      top: 18px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 8px;
+      background: var(--toolbar-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--paper-border);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    }
+
+    .corner-toolbar-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-secondary);
+      padding: 0 5px 0 4px;
+      white-space: nowrap;
+    }
+
+    .grid-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--ink-secondary);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      padding: 5px 9px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .grid-btn:hover {
+      color: var(--ink-primary);
+      background: rgba(var(--grid-rgb), 0.07);
+    }
+
+    .grid-btn.is-active {
+      color: var(--btn-active-fg);
+      background: var(--btn-active-bg);
+      border-color: var(--btn-active-bg);
+    }
+
+    /* Main Container */
+    .page-wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 72px 32px 112px;
+    }
+
+    /* Document Masthead */
+    .masthead {
+      padding-bottom: 40px;
+      margin-bottom: 56px;
+      border-bottom: 1px solid var(--paper-border);
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-secondary);
+    }
+
+    .meta-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .meta-num {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .meta-line {
+      display: inline-block;
+      width: 28px;
+      height: 1px;
+      background: rgba(var(--grid-rgb), 0.25);
+    }
+
+    .masthead-title {
+      font-family: var(--font-sans);
+      font-weight: 800;
+      font-size: clamp(34px, 4.6vw, 54px);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      color: var(--ink-primary);
+      margin-bottom: 16px;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--paper-border);
+      margin: 0 4px;
+    }
+
+    .em-serif {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--brand-emphasis);
+    }
+
+    .em-serif-600 {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 600;
+      color: var(--brand-emphasis);
+    }
+
+    .masthead-sub {
+      max-width: 680px;
+      font-size: 16px;
+      color: var(--ink-secondary);
+      line-height: 1.65;
+    }
+
+    /* Section Block */
+    .brand-section {
+      margin-bottom: 84px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--paper-border);
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .section-tag::before {
+      content: '';
+      display: inline-block;
+      width: 2px;
+      height: 12px;
+      background: var(--accent);
+    }
+
+    .section-title {
+      font-family: var(--font-sans);
+      font-weight: 800;
+      font-size: 26px;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      color: var(--ink-primary);
+    }
+
+    .section-note {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-secondary);
+    }
+
+    /* PART A: Color Swatches & Grid Controls */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .swatch-card {
+      background: var(--card-bg);
+      border: 1px solid var(--paper-border);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .swatch-color {
+      height: 104px;
+      position: relative;
+      border-bottom: 1px solid var(--paper-border);
+    }
+
+    .swatch-color.is-paper {
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(to right, rgba(var(--grid-rgb), var(--grid-alpha)) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(var(--grid-rgb), var(--grid-alpha)) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .swatch-color.is-hl {
+      background-color: var(--paper);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .swatch-hl-demo {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink-primary);
+    }
+
+    .swatch-meta {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .swatch-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--ink-primary);
+    }
+
+    .swatch-hex {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .swatch-role {
+      font-size: 12.5px;
+      color: var(--ink-secondary);
+      line-height: 1.45;
+      margin-top: 2px;
+    }
+
+    .grid-control-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--paper-elevated);
+      border: 1px solid var(--paper-border);
+      border-radius: 10px;
+    }
+
+    .grid-control-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .grid-control-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--ink-primary);
+    }
+
+    .grid-control-desc {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--ink-secondary);
+      letter-spacing: 0.04em;
+    }
+
+    .grid-control-btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* PART B: Typography & Highlighter */
+    .typo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .typo-card {
+      background: var(--card-bg);
+      border: 1px solid var(--paper-border);
+      border-radius: 10px;
+      padding: 24px;
+    }
+
+    .typo-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--paper-border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-secondary);
+    }
+
+    .typo-card-meta strong {
+      color: var(--ink-primary);
+      font-weight: 600;
+    }
+
+    .specimen-h1 {
+      font-family: var(--font-sans);
+      font-weight: 800;
+      font-size: 32px;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+    }
+
+    .specimen-serif {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 30px;
+      line-height: 1.25;
+      color: var(--ink-primary);
+      margin-bottom: 12px;
+    }
+
+    .specimen-mono-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .mono-chip {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 5px 10px;
+      border: 1px solid var(--paper-border);
+      border-radius: 4px;
+      color: var(--ink-secondary);
+      background: var(--card-bg);
+    }
+
+    .mono-chip.is-accent {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .diacritic-strip {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--paper-border);
+      font-size: 14px;
+      color: var(--ink-secondary);
+      line-height: 1.6;
+    }
+
+    /* Highlighter Box */
+    .hl-showcase {
+      background: var(--card-bg);
+      border: 1px solid var(--paper-border);
+      border-radius: 10px;
+      padding: 32px;
+    }
+
+    .hl-showcase-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--paper-border);
+    }
+
+    .btn-replay {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--btn-active-fg);
+      background: var(--btn-active-bg);
+      border: 1px solid var(--btn-active-bg);
+      border-radius: 6px;
+      padding: 9px 15px;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-replay:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .btn-replay:active {
+      transform: translateY(0);
+    }
+
+    .sample-heading {
+      font-family: var(--font-sans);
+      font-weight: 800;
+      font-size: clamp(24px, 2.8vw, 32px);
+      line-height: 1.24;
+      letter-spacing: -0.02em;
+      margin-bottom: 18px;
+    }
+
+    .sample-body {
+      font-family: var(--font-sans);
+      font-weight: 400;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--ink-primary);
+      max-width: 78ch;
+    }
+
+    .sample-body + .sample-body {
+      margin-top: 14px;
+    }
+
+    /* Highlighter Pen Effect (.hl) */
+    .hl {
+      display: inline;
+      color: var(--hl-text);
+      font-weight: 600;
+      padding: 0 5px 1px 5px;
+      margin: 0 -2px;
+      border-radius: 4px 3px 4px 3px;
+      background-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 22%,
+        var(--hl-color) 22%,
+        var(--hl-color) 96%,
+        transparent 96%
+      );
+      background-repeat: no-repeat;
+      background-position: left bottom;
+      background-size: 0% 100%;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+      transition: background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .hl.hl-active {
+      background-size: 100% 100%;
+    }
+
+    .hl.hl-reset {
+      transition: none !important;
+      background-size: 0% 100% !important;
+    }
+
+    /* PART C: 16:9 Slide Previews */
+    .slide-preview-block {
+      margin-bottom: 48px;
+    }
+
+    .slide-caption-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-secondary);
+    }
+
+    .slide-caption-row strong {
+      color: var(--ink-primary);
+    }
+
+    .slide-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      container-type: inline-size;
+      border: 1px solid var(--paper-border);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.16),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Shared Slide Chrome (Header + Footer) */
+    .slide-header {
+      position: relative;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3.4cqw 5.2cqw 0;
+      font-family: var(--font-mono);
+      font-size: 1.05cqw;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--ink-secondary);
+    }
+
+    .slide-header-left {
+      display: flex;
+      align-items: center;
+      gap: 1.1cqw;
+    }
+
+    .slide-header-num {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .slide-header-rule {
+      display: inline-block;
+      width: 2.6cqw;
+      height: 1px;
+      background: rgba(var(--grid-rgb), 0.24);
+    }
+
+    .slide-footer {
+      position: relative;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2.4cqw;
+      padding: 1.2cqw 5.2cqw 1.8cqw;
+      border-top: 1px solid var(--paper-border);
+      font-family: var(--font-mono);
+      font-size: 0.92cqw;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-secondary);
+    }
+
+    .slide-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 1.1cqw;
+      white-space: nowrap;
+    }
+
+    .slide-page-active {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .slide-progress {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.38cqw;
+      max-width: 48cqw;
+    }
+
+    .progress-seg {
+      flex: 1;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--progress-track);
+    }
+
+    .progress-seg.is-done {
+      background: var(--progress-done);
+    }
+
+    .progress-seg.is-active {
+      background: var(--accent);
+      height: 2.5px;
+    }
+
+    .slide-footer-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6cqw;
+      white-space: nowrap;
+    }
+
+    .key-pill {
+      padding: 0.28cqw 0.62cqw;
+      border: 1px solid var(--paper-border);
+      border-radius: 0.3cqw;
+      font-size: 0.82cqw;
+      color: var(--ink-secondary);
+      background: var(--card-bg);
+    }
+
+    /* Subtle Geometric Wireframe Ornament (matching reference spirit) */
+    .wireframe-ornament {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.22;
+    }
+
+    /* SLIDE 1: Opening Slide */
+    .slide-cover-body {
+      position: relative;
+      z-index: 3;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 5.2cqw;
+      max-width: 78cqw;
+    }
+
+    .slide-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75cqw;
+      font-family: var(--font-mono);
+      font-size: 1.05cqw;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 2cqw;
+    }
+
+    .slide-kicker::before {
+      content: '';
+      display: inline-block;
+      width: 0.18cqw;
+      height: 1.25cqw;
+      background: var(--accent);
+    }
+
+    .slide-cover-title {
+      font-family: var(--font-sans);
+      font-weight: 800;
+      font-size: 5.2cqw;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      color: var(--ink-primary);
+      margin-bottom: 2.4cqw;
+    }
+
+    .slide-accent-rule {
+      width: 6.4cqw;
+      height: 0.22cqw;
+      background: var(--accent);
+      margin-bottom: 2.2cqw;
+    }
+
+    .slide-cover-desc {
+      font-family: var(--font-sans);
+      font-weight: 400;
+      font-size: 1.65cqw;
+      line-height: 1.65;
+      color: var(--ink-secondary);
+      max-width: 54cqw;
+      margin-bottom: 3.4cqw;
+    }
+
+    .slide-author-row {
+      display: flex;
+      align-items: center;
+      gap: 2.6cqw;
+      font-family: var(--font-mono);
+      font-size: 0.98cqw;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-secondary);
+    }
+
+    .slide-author-item strong {
+      display: block;
+      font-family: var(--font-sans);
+      font-size: 1.2cqw;
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: -0.01em;
+      color: var(--ink-primary);
+      margin-top: 0.25cqw;
+    }
+
+    /* SLIDE 2: Content Slide (Reference Layout) */
+    .slide-content-body {
+      position: relative;
+      z-index: 3;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 42% 58%;
+      align-items: center;
+      padding: 0 5.2cqw;
+      gap: 2.4cqw;
+    }
+
+    .slide-left-col {
+      position: relative;
+      padding-top: 2.8cqw;
+    }
+
+    .ghost-chapter-num {
+      position: absolute;
+      top: -6.2cqw;
+      left: -0.6cqw;
+      font-family: var(--font-sans);
+      font-weight: 800;
+      font-size: 15.5cqw;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: transparent;
+      -webkit-text-stroke: 1.2px var(--ghost-stroke);
+      user-select: none;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .slide-left-inner {
+      position: relative;
+      z-index: 2;
+    }
+
+    .slide-content-title {
+      font-family: var(--font-sans);
+      font-weight: 800;
+      font-size: 3.85cqw;
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+      color: var(--ink-primary);
+      margin-bottom: 1.6cqw;
+    }
+
+    .slide-content-text {
+      font-family: var(--font-sans);
+      font-weight: 400;
+      font-size: 1.48cqw;
+      line-height: 1.65;
+      color: var(--ink-primary);
+      max-width: 34cqw;
+      margin-bottom: 2.2cqw;
+    }
+
+    .slide-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65cqw;
+    }
+
+    .slide-tag {
+      font-family: var(--font-mono);
+      font-size: 0.92cqw;
+      letter-spacing: 0.06em;
+      padding: 0.48cqw 0.95cqw;
+      border: 1px solid var(--paper-border);
+      border-radius: 0.28cqw;
+      color: var(--ink-secondary);
+      background: var(--card-bg);
+    }
+
+    .slide-tag.is-accent {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    /* Mockup Screenshot Cluster (Right Column of Slide 2) */
+    .mockup-stage {
+      position: relative;
+      height: 36cqw;
+      width: 100%;
+    }
+
+    .mock-win {
+      position: absolute;
+      background: #1E1D1B;
+      border-radius: 0.7cqw;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 2px solid var(--accent);
+      box-shadow:
+        0 2.4cqw 4.8cqw rgba(28, 27, 25, 0.34),
+        0 0.8cqw 1.6cqw rgba(28, 27, 25, 0.22);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mock-win-main {
+      left: 0;
+      top: 5.5cqw;
+      width: 34cqw;
+      height: 24.5cqw;
+      z-index: 2;
+    }
+
+    .mock-win-top {
+      right: 0.4cqw;
+      top: 0.4cqw;
+      width: 19.5cqw;
+      height: 12.8cqw;
+      z-index: 3;
+    }
+
+    .mock-win-mid {
+      right: -1.4cqw;
+      top: 11.8cqw;
+      width: 19.2cqw;
+      height: 11.6cqw;
+      z-index: 4;
+    }
+
+    .mock-win-bot {
+      right: 1.2cqw;
+      bottom: 0.2cqw;
+      width: 19cqw;
+      height: 12.2cqw;
+      z-index: 5;
+    }
+
+    .mock-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55cqw 0.85cqw;
+      background: #272522;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .mock-dots {
+      display: flex;
+      gap: 0.35cqw;
+    }
+
+    .mock-dots span {
+      width: 0.55cqw;
+      height: 0.55cqw;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .mock-dots span:nth-child(1) { background: #E05A47; }
+    .mock-dots span:nth-child(2) { background: #E5B44B; }
+    .mock-dots span:nth-child(3) { background: #64B86B; }
+
+    .mock-title {
+      font-family: var(--font-mono);
+      font-size: 0.72cqw;
+      color: rgba(250, 248, 242, 0.65);
+      letter-spacing: 0.06em;
+    }
+
+    .mock-canvas {
+      flex: 1;
+      padding: 1.2cqw;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9cqw;
+      background: linear-gradient(145deg, #242320 0%, #171614 100%);
+    }
+
+    .mock-paper-card {
+      flex: 1;
+      background: #FAF8F2;
+      border-radius: 0.35cqw;
+      padding: 1.3cqw 1.5cqw;
+      color: var(--ink-primary);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-image:
+        linear-gradient(to right, rgba(28, 27, 25, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(28, 27, 25, 0.06) 1px, transparent 1px);
+      background-size: 1.2cqw 1.2cqw;
+    }
+
+    .mock-note-badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-family: var(--font-mono);
+      font-size: 0.7cqw;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 0.4cqw;
+    }
+
+    .mock-note-h {
+      font-family: var(--font-sans);
+      font-weight: 800;
+      font-size: 1.6cqw;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.7cqw;
+    }
+
+    .mock-note-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45cqw;
+    }
+
+    .mock-line {
+      height: 0.48cqw;
+      border-radius: 0.2cqw;
+      background: rgba(28, 27, 25, 0.16);
+    }
+
+    .mock-line.is-hl {
+      background: linear-gradient(to right, rgba(255, 224, 92, 0.78) 0%, rgba(255, 224, 92, 0.78) 76%, transparent 76%);
+      height: 0.75cqw;
+    }
+
+    .mock-mini-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6cqw;
+    }
+
+    .mock-mini-box {
+      border-radius: 0.3cqw;
+      background: rgba(250, 248, 242, 0.07);
+      border: 1px solid rgba(250, 248, 242, 0.08);
+      padding: 0.6cqw;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .mock-bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.4cqw;
+      height: 100%;
+      padding-top: 0.6cqw;
+    }
+
+    .mock-bar-col {
+      flex: 1;
+      background: rgba(250, 248, 242, 0.22);
+      border-radius: 0.15cqw 0.15cqw 0 0;
+    }
+
+    .mock-bar-col.is-accent {
+      background: var(--accent);
+    }
+
+    .mock-bar-col.is-hl {
+      background: rgba(255, 224, 92, 0.75);
+    }
+
+    .mock-caption-pill {
+      align-self: flex-start;
+      padding: 0.35cqw 0.7cqw;
+      border-radius: 0.25cqw;
+      background: rgba(28, 27, 25, 0.85);
+      color: #FAF8F2;
+      font-family: var(--font-mono);
+      font-size: 0.72cqw;
+      letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 900px) {
+      .swatch-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .typo-grid {
+        grid-template-columns: 1fr;
+      }
+      .corner-toolbar {
+        top: 10px;
+        right: 10px;
+        padding: 5px 6px;
+      }
+      .page-wrap {
+        padding: 68px 18px 80px;
+      }
+    }
+    .bs-swatch {
+      width: 16px;
+      height: 16px;
+      padding: 0;
+      border-radius: 4px;
+      border: none;
+      background: var(--sw-accent, #C60C30);
+      box-shadow: none;
+      opacity: 0.86;
+      cursor: pointer;
+      transition: transform 0.16s ease, opacity 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .bs-swatch:hover {
+      opacity: 1;
+      transform: scale(1.16);
+      background: var(--sw-accent, #C60C30);
+    }
+
+    .bs-swatch.is-active {
+      opacity: 1;
+      transform: scale(1.12);
+      background: var(--sw-accent, #C60C30);
+      border-color: transparent;
+      box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--sw-accent, #C60C30);
+    }
+  </style>
+</head>
+<body class="paper-grid">
+
+  <!-- Floating Corner Grid (4% On/Off) & Palette Switcher -->
+  <aside class="corner-toolbar" aria-label="Tùy chỉnh lưới caro và bảng màu">
+    <span class="corner-toolbar-label">Ô caro</span>
+    <button type="button" class="grid-btn is-active" data-grid="0.04">Bật</button>
+    <button type="button" class="grid-btn" data-grid="0">Tắt</button>
+    <span class="toolbar-divider" aria-hidden="true"></span>
+    <span class="corner-toolbar-label">Màu</span>
+    <button type="button" class="grid-btn bs-swatch is-active" data-palette="1" style="--sw-accent: #00838F; --sw-paper: #F6FBF9;" title="Summer Vibe (Light)" aria-label="Summer Vibe (Light)"></button>
+    <button type="button" class="grid-btn bs-swatch" data-palette="2" style="--sw-accent: #1C4066; --sw-paper: #F2F7FA;" title="Deep Lake (Light)" aria-label="Deep Lake (Light)"></button>
+    <button type="button" class="grid-btn bs-swatch" data-palette="3" style="--sw-accent: #F4B400; --sw-paper: #0D1B2A;" title="Starry Night (Dark)" aria-label="Starry Night (Dark)"></button>
+    <button type="button" class="grid-btn bs-swatch" data-palette="4" style="--sw-accent: #FF2E88; --sw-paper: #090B14;" title="Neon Tokyo (Dark)" aria-label="Neon Tokyo (Dark)"></button>
+  </aside>
+
+  <main class="page-wrap">
+
+    <!-- Masthead -->
+    <header class="masthead">
+      <div class="meta-row">
+        <div class="meta-left">
+          <span class="meta-num">00</span>
+          <span class="meta-line" aria-hidden="true"></span>
+          <span>EDITORIAL STUDY NOTE · DESIGN SYSTEM</span>
+        </div>
+        <span>BRANDSHEET · BƯỚC 1</span>
+      </div>
+      <h1 class="masthead-title">
+        Hệ thống thiết kế <span class="em-serif">Editorial Study Note</span>
+      </h1>
+      <p class="masthead-sub">
+        Bản mẫu kiểm duyệt màu giấy, độ đậm ô caro, cặp chữ tiếng Việt, nét bút highlight vàng và tỷ lệ khoảng trắng của 2 khung slide 16:9 trước khi dựng bộ slide chính.
+      </p>
+    </header>
+
+    <!-- PHẦN A: BẢNG MÀU & LƯỚI CARO -->
+    <section class="brand-section" id="part-a">
+      <div class="section-head">
+        <div>
+          <div class="section-tag">Phần A · Màu sắc &amp; Chất liệu giấy</div>
+          <h2 class="section-title">Bảng màu mực &amp; Nền giấy tập học sinh</h2>
+        </div>
+        <span class="section-note" id="palette-summary-note">SUMMER VIBE (LIGHT) · TANGERINE + LAGOON TEAL</span>
+      </div>
+
+      <div class="swatch-grid">
+        <article class="swatch-card">
+          <div class="swatch-color is-paper"></div>
+          <div class="swatch-meta">
+            <span class="swatch-name" id="sw-paper-name">Mint Ivory (Sunlit)</span>
+            <span class="swatch-hex" id="sw-paper-hex">#F6FBF9</span>
+            <span class="swatch-role">Nền chính toàn bộ slide, ô caro 28px x 28px mặc định 4%.</span>
+          </div>
+        </article>
+
+        <article class="swatch-card">
+          <div class="swatch-color" id="sw-ink-box" style="background-color: #0F2926;"></div>
+          <div class="swatch-meta">
+            <span class="swatch-name" id="sw-ink-name">Deep Palm Charcoal</span>
+            <span class="swatch-hex" id="sw-ink-hex">#0F2926</span>
+            <span class="swatch-role">Chữ tiêu đề và toàn bộ body text để đọc lâu không mỏi mắt.</span>
+          </div>
+        </article>
+
+        <article class="swatch-card">
+          <div class="swatch-color" id="sw-muted-box" style="background-color: #54736E;"></div>
+          <div class="swatch-meta">
+            <span class="swatch-name" id="sw-muted-name">Seafoam Slate</span>
+            <span class="swatch-hex" id="sw-muted-hex">#54736E</span>
+            <span class="swatch-role">Header, Footer, số trang, chú thích và thông số kỹ thuật.</span>
+          </div>
+        </article>
+
+        <article class="swatch-card">
+          <div class="swatch-color" id="sw-emphasis-box" style="background-color: #FF5722;"></div>
+          <div class="swatch-meta">
+            <span class="swatch-name" id="sw-emphasis-name">Tangerine Pop</span>
+            <span class="swatch-hex" id="sw-emphasis-hex">#FF5722</span>
+            <span class="swatch-role">Từ khóa Playfair Italic và số chương mờ phía sau.</span>
+          </div>
+        </article>
+
+        <article class="swatch-card">
+          <div class="swatch-color" id="sw-accent-box" style="background-color: #00838F;"></div>
+          <div class="swatch-meta">
+            <span class="swatch-name" id="sw-accent-name">Lagoon Teal</span>
+            <span class="swatch-hex" id="sw-accent-hex">#00838F</span>
+            <span class="swatch-role">Đường kẻ nhấn mảnh, nhãn tag, số trang active và thanh tiến trình.</span>
+          </div>
+        </article>
+
+        <article class="swatch-card">
+          <div class="swatch-color is-hl">
+            <span class="swatch-hl-demo"><span class="hl">Bút dạ quang</span></span>
+          </div>
+          <div class="swatch-meta">
+            <span class="swatch-name" id="sw-hl-name">Highlight .hl</span>
+            <span class="swatch-hex" id="sw-hl-hex">rgba(255, 214, 48, 0.80)</span>
+            <span class="swatch-role">Phủ 60% thân dưới dòng chữ, quét mượt từ trái sang phải.</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid-control-panel">
+        <div class="grid-control-info">
+          <div class="grid-control-title">Lưới ô caro 28px x 28px (Mặc định 4% - Bật / Tắt)</div>
+          <div class="grid-control-desc" id="grid-status-text">Đang bật: 4% · Nét mảnh 1px</div>
+        </div>
+        <div class="grid-control-btns" aria-label="Bật tắt lưới caro trong phần A">
+          <button type="button" class="grid-btn is-active" data-grid="0.04">Bật (4%)</button>
+          <button type="button" class="grid-btn" data-grid="0">Tắt caro</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PHẦN B: TYPOGRAPHY & HIGHLIGHTER -->
+    <section class="brand-section" id="part-b">
+      <div class="section-head">
+        <div>
+          <div class="section-tag">Phần B · Kiểu chữ tiếng Việt &amp; Highlight</div>
+          <h2 class="section-title">Cặp chữ &amp; Hiệu ứng gạch bài <span class="em-serif">.hl</span></h2>
+        </div>
+        <span class="section-note">GOOGLE FONTS · SUBSET VIETNAMESE</span>
+      </div>
+
+      <div class="typo-grid">
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>Apple SF Pro / Inter</strong>
+            <span>Heading 700-800 · Body 400-500</span>
+          </div>
+          <div class="specimen-h1">
+            Học ít nhưng trúng đích, đọc một lần là nhớ lâu.
+          </div>
+          <p style="font-size: 15px; color: var(--ink-secondary); line-height: 1.65;">
+            Font tối giản phong cách Apple: ưu tiên <code style="font-family: var(--font-mono); font-size: 13px;">SF Pro</code> trên macOS/iOS và tự động nạp <code style="font-family: var(--font-mono); font-size: 13px;">Inter</code> (bản web tương đương sát nhất, đủ dấu tiếng Việt) trên Windows. Tiêu đề <code style="font-family: var(--font-mono); font-size: 13px;">-0.02em</code>, nội dung <code style="font-family: var(--font-mono); font-size: 13px;">line-height 1.65</code>.
+          </p>
+          <div class="diacritic-strip">
+            Ă Â Đ Ê Ô Ơ Ư · ă â đ ê ô ơ ư · Á À Ả Ã Ạ · Ắ Ằ Ẳ Ẵ Ặ · Ế Ề Ể Ễ Ệ · Ố Ồ Ổ Ỗ Ộ · Ớ Ờ Ở Ỡ Ợ · Ứ Ừ Ử Ữ Ự
+          </div>
+        </article>
+
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>Playfair Display Italic + JetBrains Mono</strong>
+            <span>600-700 Italic · Mono 11-12px</span>
+          </div>
+          <div class="specimen-serif">
+            Nhấn đúng từ khóa, giữ trọn nhịp điệu của trang ghi chép.
+          </div>
+          <p style="font-size: 15px; color: var(--ink-secondary); line-height: 1.65;">
+            Playfair Display luôn xuất hiện ở dạng <em>Italic</em> (600-700) khi đứng xen kẽ trong tiêu đề hoặc câu kết chốt ý. JetBrains Mono đảm nhận toàn bộ thông số kỹ thuật, nhãn tag và số trang.
+          </p>
+          <div class="specimen-mono-row">
+            <span class="mono-chip is-accent">01 / 40</span>
+            <span class="mono-chip">CHƯƠNG 02 · TỔNG QUAN</span>
+            <span class="mono-chip">TRACKING 0.1EM</span>
+          </div>
+        </article>
+      </div>
+
+      <!-- Mixed Typography + Highlighter Interactive Demo -->
+      <div class="hl-showcase">
+        <div class="hl-showcase-top">
+          <div class="meta-left" style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-secondary);">
+            <span class="meta-num">MẪU TRỘN CHỮ</span>
+            <span class="meta-line" aria-hidden="true"></span>
+            <span>APPLE SF PRO / INTER + PLAYFAIR ITALIC + .HL (0.45S)</span>
+          </div>
+          <button type="button" class="btn-replay" id="btn-replay-hl">
+            Chạy lại hiệu ứng Highlight
+          </button>
+        </div>
+
+        <h3 class="sample-heading">
+          Một trang ghi chú tốt không nhồi nhét chữ, mà dẫn mắt người đọc đi thẳng vào <span class="em-serif">trọng tâm cốt lõi</span>.
+        </h3>
+        <p class="sample-body">
+          Khi trình bày kiến thức phức tạp bằng tiếng Việt, sự rõ ràng của dấu thanh quyết định tốc độ tiếp nhận. Thay vì tô đậm cả đoạn dài gây mỏi mắt, ta chỉ dùng <span class="hl">nét bút dạ quang màu vàng bơ dịu</span> quét qua đúng mệnh đề cần ghi nhớ.
+        </p>
+        <p class="sample-body">
+          Đặt xen kẽ một cụm từ nhấn bằng <span class="em-serif-600">Playfair Display nghiêng</span> giữa nền chữ không chân hiện đại tạo ra cảm giác như đang đọc một cuốn sổ tay được biên tập kỹ lưỡng, nơi <span class="hl">mọi khoảng trắng đều có chủ đích</span> và từng ý lớn tự tách bạch với nhau.
+        </p>
+      </div>
+    </section>
+
+    <!-- PHẦN C: 2 KHUNG XEM TRƯỚC SLIDE 16:9 -->
+    <section class="brand-section" id="part-c">
+      <div class="section-head">
+        <div>
+          <div class="section-tag">Phần C · Mô phỏng khung hình 16:9</div>
+          <h2 class="section-title">Bố cục 2 slide mẫu theo tỷ lệ thực tế</h2>
+        </div>
+        <span class="section-note">ASPECT RATIO 16:9 · CHỊU TÁC ĐỘNG CỦA CÔNG TẮC CARO</span>
+      </div>
+
+      <!-- KHUNG 1: SLIDE MỞ ĐẦU -->
+      <div class="slide-preview-block">
+        <div class="slide-caption-row">
+          <span><strong>Khung 1</strong> · Slide Mở đầu (Opening Slide)</span>
+          <span>16:9 · HEADER + TITLE + AUTHOR TAG + ACCENT RULE + FOOTER</span>
+        </div>
+
+        <div class="slide-frame paper-grid" aria-label="Xem trước Slide Mở đầu 16:9">
+          <!-- Subtle wireframe corner ornament -->
+          <svg class="wireframe-ornament" style="right: -2cqw; top: -1cqw; width: 24cqw; height: 24cqw;" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="110,16 196,64 196,158 110,204 24,158 24,64" style="stroke: var(--wireframe-ink);" stroke-width="0.9"/>
+            <line x1="110" y1="16" x2="110" y2="204" style="stroke: var(--wireframe-ink);" stroke-width="0.7"/>
+            <line x1="24" y1="64" x2="196" y2="158" style="stroke: var(--wireframe-ink);" stroke-width="0.7"/>
+            <line x1="196" y1="64" x2="24" y2="158" style="stroke: var(--wireframe-ink);" stroke-width="0.7"/>
+            <polygon points="110,64 152,88 152,134 110,158 68,134 68,88" style="stroke: var(--accent);" stroke-width="0.7"/>
+          </svg>
+
+          <!-- Top Header -->
+          <div class="slide-header">
+            <div class="slide-header-left">
+              <span class="slide-header-num">01</span>
+              <span class="slide-header-rule" aria-hidden="true"></span>
+              <span>SỔ TAY HỌC TẬP · BỘ SLIDE TRÌNH CHIẾU</span>
+            </div>
+            <span>MỞ ĐẦU · 01 / 40</span>
+          </div>
+
+          <!-- Center Body -->
+          <div class="slide-cover-body">
+            <div class="slide-kicker">Editorial Study Note · Phiên bản 2026</div>
+            <h3 class="slide-cover-title">
+              Tư duy trình bày <span class="em-serif">tối giản</span>,<br>
+              học sâu từ <span class="em-serif">từng trang ghi chép</span>.
+            </h3>
+            <div class="slide-accent-rule" aria-hidden="true"></div>
+            <p class="slide-cover-desc">
+              Hệ thống slide lấy cảm hứng từ vở ô caro và ấn phẩm biên tập hiện đại, giúp <span class="hl">giảm nhiễu thị giác</span> và giữ trọn sự tập trung vào nội dung chính.
+            </p>
+            <div class="slide-author-row">
+              <div class="slide-author-item">
+                TÁC GIẢ
+                <strong>Your Name · Studio Deck</strong>
+              </div>
+              <div class="slide-author-item">
+                ĐỊNH DẠNG
+                <strong>Widescreen 16:9 · 40 Slides</strong>
+              </div>
+              <div class="slide-author-item">
+                CHỦ ĐỀ
+                <strong>Phương pháp &amp; Hệ thống</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Footer -->
+          <div class="slide-footer">
+            <div class="slide-footer-left">
+              <span><span class="slide-page-active">01</span> / 40</span>
+              <span>MỞ ĐẦU</span>
+            </div>
+            <div class="slide-progress" aria-hidden="true">
+              <span class="progress-seg is-active"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+            </div>
+            <div class="slide-footer-right">
+              <span class="key-pill">G · Lưới</span>
+              <span class="key-pill">F · Toàn màn hình</span>
+              <span class="key-pill">?</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KHUNG 2: SLIDE NỘI DUNG -->
+      <div class="slide-preview-block" style="margin-bottom: 0;">
+        <div class="slide-caption-row">
+          <span><strong>Khung 2</strong> · Slide Nội dung (Content Slide - Bố cục tham chiếu)</span>
+          <span>16:9 · HEADER + SỐ CHƯƠNG MỜ + BODY HIGHLIGHT + MOCKUP ĐỔ BÓNG SÂU + FOOTER</span>
+        </div>
+
+        <div class="slide-frame paper-grid" aria-label="Xem trước Slide Nội dung 16:9">
+          <!-- Subtle wireframe corner ornaments echoing reference -->
+          <svg class="wireframe-ornament" style="left: -2.5cqw; top: 15cqw; width: 15cqw; height: 15cqw;" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="80,14 142,48 124,132 36,120 18,52" style="stroke: var(--wireframe-ink);" stroke-width="0.9"/>
+            <line x1="80" y1="14" x2="36" y2="120" style="stroke: var(--wireframe-ink);" stroke-width="0.7"/>
+            <line x1="142" y1="48" x2="18" y2="52" style="stroke: var(--wireframe-ink);" stroke-width="0.7"/>
+          </svg>
+          <svg class="wireframe-ornament" style="right: -2cqw; bottom: 1.5cqw; width: 16cqw; height: 16cqw;" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="80,12 146,56 122,144 38,144 14,56" style="stroke: var(--wireframe-ink);" stroke-width="0.9"/>
+            <line x1="80" y1="12" x2="122" y2="144" style="stroke: var(--wireframe-ink);" stroke-width="0.7"/>
+            <line x1="146" y1="56" x2="38" y2="144" style="stroke: var(--wireframe-ink);" stroke-width="0.7"/>
+          </svg>
+
+          <!-- Top Header -->
+          <div class="slide-header">
+            <div class="slide-header-left">
+              <span class="slide-header-num">08</span>
+              <span class="slide-header-rule" aria-hidden="true"></span>
+              <span>PHẦN 01 · TỔ CHỨC GHI CHÚ · 01 OF 13</span>
+            </div>
+            <span>CẤU TRÚC · 08 / 40</span>
+          </div>
+
+          <!-- Two-Column Content Body -->
+          <div class="slide-content-body">
+            <!-- Left Column -->
+            <div class="slide-left-col">
+              <div class="ghost-chapter-num" aria-hidden="true">01</div>
+              <div class="slide-left-inner">
+                <div class="slide-kicker" style="margin-bottom: 1.2cqw;">Phân tích cấu trúc</div>
+                <h3 class="slide-content-title">
+                  Ghi chú <span class="em-serif">tinh gọn</span>
+                </h3>
+                <p class="slide-content-text">
+                  Tách nhỏ kiến thức thành từng khung nhìn rõ ràng, kết hợp <span class="hl">ví dụ trực quan đổ bóng sâu</span> và giữ lại đúng những ý cốt lõi cần mang vào phòng thi.
+                </p>
+                <div class="slide-tags">
+                  <span class="slide-tag">Bố cục</span>
+                  <span class="slide-tag">Tối giản</span>
+                  <span class="slide-tag">Tự học</span>
+                  <span class="slide-tag is-accent">Bản chuẩn</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Deep-Shadowed Overlapping Screenshot Mockups -->
+            <div class="mockup-stage" aria-label="Khung giả lập ảnh chụp màn hình đổ bóng sâu">
+              <!-- Primary Window -->
+              <div class="mock-win mock-win-main">
+                <div class="mock-bar">
+                  <div class="mock-dots"><span></span><span></span><span></span></div>
+                  <span class="mock-title">StudyNote · Trang chính</span>
+                  <span style="width: 2cqw;"></span>
+                </div>
+                <div class="mock-canvas">
+                  <div class="mock-paper-card">
+                    <div>
+                      <span class="mock-note-badge">UNIT 04 · PHÂN TÍCH ĐỀ</span>
+                      <div class="mock-note-h">Cách mở bài trực diện trong 2 câu</div>
+                      <div class="mock-note-lines">
+                        <div class="mock-line" style="width: 92%;"></div>
+                        <div class="mock-line is-hl" style="width: 86%;"></div>
+                        <div class="mock-line" style="width: 78%;"></div>
+                        <div class="mock-line" style="width: 64%;"></div>
+                      </div>
+                    </div>
+                    <div class="mock-caption-pill">Ví dụ mẫu · 142 từ</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Secondary Top-Right Window -->
+              <div class="mock-win mock-win-top">
+                <div class="mock-bar">
+                  <div class="mock-dots"><span></span><span></span><span></span></div>
+                  <span class="mock-title">Biểu đồ tiến độ</span>
+                  <span style="width: 1cqw;"></span>
+                </div>
+                <div class="mock-canvas" style="padding: 0.9cqw;">
+                  <div class="mock-bar-chart">
+                    <div class="mock-bar-col" style="height: 36%;"></div>
+                    <div class="mock-bar-col" style="height: 52%;"></div>
+                    <div class="mock-bar-col" style="height: 44%;"></div>
+                    <div class="mock-bar-col is-hl" style="height: 76%;"></div>
+                    <div class="mock-bar-col is-accent" style="height: 92%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Secondary Mid-Right Window -->
+              <div class="mock-win mock-win-mid">
+                <div class="mock-bar">
+                  <div class="mock-dots"><span></span><span></span><span></span></div>
+                  <span class="mock-title">Từ khóa trọng tâm</span>
+                  <span style="width: 1cqw;"></span>
+                </div>
+                <div class="mock-canvas" style="padding: 0.9cqw;">
+                  <div class="mock-mini-grid">
+                    <div class="mock-mini-box">
+                      <div style="font-family: var(--font-mono); font-size: 0.68cqw; color: rgba(250,248,242,0.5);">MỤC 01</div>
+                      <div style="font-size: 0.88cqw; font-weight: 700; color: #FAF8F2; margin-top: 0.2cqw;">Luận điểm</div>
+                    </div>
+                    <div class="mock-mini-box" style="border-color: var(--accent);">
+                      <div style="font-family: var(--font-mono); font-size: 0.68cqw; color: var(--accent);">MỤC 02</div>
+                      <div style="font-size: 0.88cqw; font-weight: 700; color: #FAF8F2; margin-top: 0.2cqw;">Dẫn chứng</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Secondary Bottom-Right Window -->
+              <div class="mock-win mock-win-bot">
+                <div class="mock-bar">
+                  <div class="mock-dots"><span></span><span></span><span></span></div>
+                  <span class="mock-title">Tổng kết trang</span>
+                  <span style="width: 1cqw;"></span>
+                </div>
+                <div class="mock-canvas" style="padding: 0.9cqw; justify-content: center;">
+                  <div style="font-family: var(--font-mono); font-size: 0.68cqw; color: rgba(255, 224, 92, 0.85); letter-spacing: 0.08em;">GHI NHỚ NHANH</div>
+                  <div style="font-size: 0.86cqw; color: rgba(250, 248, 242, 0.86); line-height: 1.5; margin-top: 0.25cqw;">
+                    1 ý lớn mỗi khung hình, tối đa 2 cụm highlight vàng.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Footer -->
+          <div class="slide-footer">
+            <div class="slide-footer-left">
+              <span><span class="slide-page-active">08</span> / 40</span>
+              <span>GHI CHÚ TINH GỌN</span>
+            </div>
+            <div class="slide-progress" aria-hidden="true">
+              <span class="progress-seg is-done"></span>
+              <span class="progress-seg is-done"></span>
+              <span class="progress-seg is-done"></span>
+              <span class="progress-seg is-done"></span>
+              <span class="progress-seg is-done"></span>
+              <span class="progress-seg is-done"></span>
+              <span class="progress-seg is-done"></span>
+              <span class="progress-seg is-active"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+              <span class="progress-seg"></span>
+            </div>
+            <div class="slide-footer-right">
+              <span class="key-pill">G · Lưới</span>
+              <span class="key-pill">← · →</span>
+              <span class="key-pill">?</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PHẦN D: TEACHER TOOLS STYLE SPEC -->
+    <section class="brand-section" id="part-d" style="margin-bottom: 0;">
+      <div class="section-head">
+        <div>
+          <div class="section-tag">Phần D · Teacher Tools (Footer Drop-up)</div>
+          <h2 class="section-title">Quy chuẩn công cụ giảng dạy trực tiếp</h2>
+        </div>
+        <span class="section-note">SINGLE ACCENT COLOR · CTRL+Z UNDO CHUNG</span>
+      </div>
+
+      <div class="typo-grid">
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>● Laser Pointer (L)</strong>
+            <span>Techno Particle · Chromatic Palette</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65;">
+            Chấm ngắm mảnh kèm hạt và 2-4 đoạn line ngắn (tối đa <code>64px</code>) đứt quãng, tự sinh và fade-out mượt (bậc 2.2). Dùng toàn bộ màu sắc của palette đang bật trừ trắng/đen; click chuột bung nhẹ 7 hạt tỏa tròn.
+          </p>
+        </article>
+
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>✎ Pen Draw (P) &amp; ▢ Rectangle Box (R)</strong>
+            <span>100% var(--accent) · Ctrl+Z / C</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65;">
+            <strong>Pen:</strong> Con trỏ icon cây bút, vẽ nét mượt theo màu <code>var(--accent)</code>. <strong>Rectangle:</strong> Kéo thả khung bo góc ruột trong suốt 100%, chỉ giữ viền <code>var(--accent)</code>. Dùng chung <code>Ctrl+Z</code> để Undo và tự đổi màu khi chuyển palette.
+          </p>
+        </article>
+
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>✎ Pen (P), ▢ Box (R), T · Text Note (T) &amp; ▬ Highlighter (H)</strong>
+            <span>Kéo di chuyển · Ctrl+Cuộn đổi cỡ · 4 góc resize</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65;">
+            <strong>Pen &amp; Box:</strong> Kéo di chuyển tự do khi về Hand Tool (<code>✋</code>); giữ <code>Ctrl + Cuộn chuột</code> để chỉnh nét mảnh-dày mà không làm zoom trang. <strong>Text Note (T):</strong> Giữ <code>Ctrl + Cuộn</code> chỉnh cỡ chữ ngay từ đầu, rê vào hộp chữ hiện <strong>4 góc kéo phóng to/thu nhỏ</strong>, double-click để sửa. <strong>Highlighter (H):</strong> Quét khối chữ trong Slide (không bold/đổi cỡ) hoặc bôi tự do <code>mix-blend-mode: multiply</code> bên PDF giữ chữ đen sắc nét 100%. Toàn bộ nét vẽ PDF tự khóa tọa độ theo trang khi zoom 60%-300% và lưu trong phiên cho đến khi tắt localhost.
+          </p>
+        </article>
+
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>▤ Multi Floating Note Box (N) &amp; ◷ Mini Timer (M)</strong>
+            <span>Ghim mép phải Note 1, 2, 3... · Chuông êm 2s</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65;">
+            <strong>Floating Note Box (N):</strong> Mỗi lần bấm mở thêm <code>Note 1</code>, <code>Note 2</code>, <code>Note 3</code>... xoay vòng qua các màu accent của palette hiện tại (trừ trắng/đen), kéo thả + đổi kích thước tự do, bấm <code>»</code> để ghim thành tab dọc gọn vào mép phải màn hình. <strong>Gắn riêng theo từng Slide / từng Trang PDF</strong> và giữ nguyên trạng thái đang mở hoặc đang ghim mép khi quay lại trang đó trong phiên. <strong>Mini Timer (M):</strong> Đồng hồ kéo thả góc màn hình với mốc nhanh <code>30s · 1m · 2m · 5m</code> hoặc gõ tự do, phát chuông nhẹ ~2s khi hết giờ và tự ẩn khi chuyển trang.
+          </p>
+        </article>
+
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>3D Folder Library, Documents &amp; Whiteboard</strong>
+            <span>Thư mục tự tạo · Tool Folders cố định · Lưu Palette</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65;">
+            Thư viện hiển thị các thư mục bài giảng 3D theo màu nhấn chính, kèm 2 thư mục công cụ cố định ở cột phải là <code>Documents</code> (trình chiếu PDF, Word, PowerPoint chế độ Read-only với <code>1P/2P</code>, Zoom <code>60%-300%</code>, Grid View 6 cột) và <code>Whiteboard</code> (bảng vẽ vô cực mở độc lập hoặc mở trực tiếp ngay trên thanh công cụ đáy khi đang trình chiếu). Palette và lưới caro tự đồng bộ qua <code>localStorage</code>.
+          </p>
+        </article>
+
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>◎ Spotlight (S) &amp; Phím tắt nhanh</strong>
+            <span>Vùng sáng +10% · Drop-up ✎ ▴</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65; margin-bottom: 10px;">
+            Vòng sáng tròn đi theo chuột (bán kính <code>116px-194px</code>) viền ánh mờ <code>var(--accent)</code>.
+          </p>
+          <div class="specimen-mono-row" style="margin-top: 4px;">
+            <span class="mono-chip is-accent">L · LASER</span>
+            <span class="mono-chip">P · PEN</span>
+            <span class="mono-chip">R · BOX</span>
+            <span class="mono-chip">T · TEXT</span>
+            <span class="mono-chip">H · HIGHLIGHT</span>
+            <span class="mono-chip">S · SPOTLIGHT</span>
+            <span class="mono-chip">N · NOTE BOX</span>
+            <span class="mono-chip">M · TIMER</span>
+            <span class="mono-chip">CTRL+Z · UNDO</span>
+            <span class="mono-chip">C · CLEAR</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- PHẦN E: QUESTION TYPES IN SLIDES -->
+    <section class="brand-section" id="part-e" style="margin-bottom: 0; margin-top: 72px;">
+      <div class="section-head">
+        <div>
+          <div class="section-tag">Phần E · Interactive Questions in Slides</div>
+          <h2 class="section-title">Hướng dẫn 4 Nhóm Câu hỏi Tương tác trong Slide</h2>
+        </div>
+        <span class="section-note">4 NHÓM CÂU HỎI · HIỆN DẪN CHỨNG &amp; ĐÁP ÁN TỪNG BƯỚC</span>
+      </div>
+
+      <div class="typo-grid">
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>Cơ chế thẻ mở từng câu &amp; Hộp dẫn chứng thông minh</strong>
+            <span>Mở từng câu tập trung · Bật đáp án độc lập</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65;">
+            Các câu hỏi mặc định đóng gọn theo số thứ tự để giữ màn hình sạch mắt. Khi bấm mở, nội dung câu hỏi hiển thị rõ từng câu một, đi kèm 2 nút độc lập là <strong>Xem dẫn chứng</strong> (tự động điều chỉnh hướng mở lên hoặc xuống để không bị che khuất ở đáy màn hình) và <strong>Hiện đáp án</strong>.
+          </p>
+        </article>
+
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>Nhóm 1: Đúng / Sai &amp; Điền từ ngắn theo dòng</strong>
+            <span>Hiển thị toàn chiều ngang từng câu</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65;">
+            Phù hợp cho câu nhận định <strong>Đúng / Sai / Không đề cập</strong> (True / False / Not Given, Yes / No / Not Given), câu hỏi điền từ vào chỗ trống bật đáp án trực tiếp trong dòng, hoặc câu chọn nhãn mục ngắn gọn (A, B, C...).
+          </p>
+        </article>
+
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>Nhóm 2: Ghép cặp &amp; Nối ý (Bố cục 2 cột)</strong>
+            <span>Danh sách lựa chọn cố định trái + Câu hỏi phải</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65;">
+            Trên khung hình 16:9, bảng lựa chọn (tiêu đề, đặc điểm hoặc vế nối câu) được ghim cố định ở cột trái để người học dễ đối chiếu xuyên suốt; danh sách câu hỏi nằm ở cột phải. Khi bật đáp án, mục tương ứng bên cột trái tự động phát sáng đồng bộ.
+          </p>
+        </article>
+
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>Nhóm 3: Bảng biểu, Tóm tắt &amp; Sơ đồ trực quan</strong>
+            <span>Điền nhiều chỗ trống · Quy trình · Hình ảnh gắn ghim</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65;">
+            Hỗ trợ trình bày bảng thông tin, đoạn tóm tắt có nhiều chỗ trống, sơ đồ quy trình nối bước theo mũi tên và hình minh họa có ghim đánh số tương tác 2 chiều. Khi bật đáp án, từ khóa đúng tự động nổi bật ngay trong phần dẫn chứng để người dạy giải thích nhanh.
+          </p>
+        </article>
+
+        <article class="typo-card">
+          <div class="typo-card-meta">
+            <strong>Nhóm 4: Trắc nghiệm (1 đáp án &amp; Nhiều đáp án)</strong>
+            <span>Lưới phương án 2 cột gọn gàng trong thẻ</span>
+          </div>
+          <p style="font-size: 14.5px; color: var(--ink-secondary); line-height: 1.65;">
+            Khi mở câu hỏi, các phương án lựa chọn xổ xuống theo lưới 2 cột cân đối, dùng được cho cả dạng chọn 1 đáp án đúng lẫn dạng chọn nhiều đáp án cùng lúc. Bấm hiện đáp án sẽ làm nổi bật các phương án đúng và làm dịu nhẹ những phương án nhiễu.
+          </p>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const gridButtons = document.querySelectorAll('.grid-btn[data-grid]');
+      const statusText = document.getElementById('grid-status-text');
+
+      const gridLabels = {
+        '0.04': 'Đang bật: 4% · Nét mảnh 1px',
+        '0': 'Đã tắt ô caro · Nền trơn'
+      };
+
+      function setGridAlpha(alpha) {
+        root.style.setProperty('--grid-alpha', alpha);
+        gridButtons.forEach((btn) => {
+          btn.classList.toggle('is-active', btn.dataset.grid === alpha);
+        });
+        if (statusText && gridLabels[alpha]) {
+          statusText.textContent = gridLabels[alpha];
+        }
+      }
+
+      gridButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          setGridAlpha(btn.dataset.grid);
+        });
+      });
+
+      // 4-Palette Starter Switcher (Light: 1, 2 | Dark: 3, 4)
+      const palettes = {
+        '1': {
+          note: 'SUMMER VIBE (LIGHT) · TANGERINE + LAGOON TEAL',
+          paperName: 'Mint Ivory (Sunlit)',
+          paperHex: '#F6FBF9',
+          inkName: 'Deep Palm Charcoal',
+          inkHex: '#0F2926',
+          mutedName: 'Seafoam Slate',
+          mutedHex: '#54736E',
+          emName: 'Tangerine Pop',
+          emHex: '#FF5722',
+          accName: 'Lagoon Teal',
+          accHex: '#00838F',
+          hlHex: 'rgba(255, 214, 48, 0.80)'
+        },
+        '2': {
+          note: 'DEEP LAKE (LIGHT) · DEEP LAKE BLUE #1C4066 + STEPPE YELLOW #C4A654 + GLACIER ICE #9CBFD6',
+          paperName: 'Glacier Mist',
+          paperHex: '#F2F7FA',
+          inkName: 'Granite Black',
+          inkHex: '#2B2E36',
+          mutedName: 'Lake Slate',
+          mutedHex: '#53667A',
+          emName: 'Steppe Yellow',
+          emHex: '#C4A654',
+          accName: 'Deep Lake Blue',
+          accHex: '#1C4066',
+          hlHex: '#9CBFD6 (Glacier Ice)'
+        },
+        '3': {
+          note: 'STARRY NIGHT (DARK) · NAVY BLUE + GOLDEN YELLOW #F4B400 + SKY BLUE #D0E3FF',
+          paperName: 'Navy Blue (Dark)',
+          paperHex: '#0D1B2A',
+          inkName: 'Crisp White',
+          inkHex: '#F2F3F3',
+          mutedName: 'Venus',
+          mutedHex: '#BAD6EB',
+          emName: 'Golden Yellow',
+          emHex: '#F4B400',
+          accName: 'Sky Blue',
+          accHex: '#D0E3FF',
+          hlHex: 'rgba(244, 180, 0, 0.46)'
+        },
+        '4': {
+          note: 'NEON TOKYO (DARK) · ELECTRIC NEON BLUE + CYBER PINK',
+          paperName: 'Midnight Obsidian',
+          paperHex: '#090B14',
+          inkName: 'Ice White',
+          inkHex: '#EEF4FF',
+          mutedName: 'Cyber Slate',
+          mutedHex: '#8B9BBF',
+          emName: 'Electric Neon Blue',
+          emHex: '#00D4FF',
+          accName: 'Cyber Tokyo Pink',
+          accHex: '#FF2E88',
+          hlHex: 'rgba(0, 212, 255, 0.42)'
+        }
+      };
+
+      const paletteButtons = document.querySelectorAll('.grid-btn[data-palette]');
+      const els = {
+        note: document.getElementById('palette-summary-note'),
+        paperName: document.getElementById('sw-paper-name'),
+        paperHex: document.getElementById('sw-paper-hex'),
+        inkBox: document.getElementById('sw-ink-box'),
+        inkName: document.getElementById('sw-ink-name'),
+        inkHex: document.getElementById('sw-ink-hex'),
+        mutedBox: document.getElementById('sw-muted-box'),
+        mutedName: document.getElementById('sw-muted-name'),
+        mutedHex: document.getElementById('sw-muted-hex'),
+        emBox: document.getElementById('sw-emphasis-box'),
+        emName: document.getElementById('sw-emphasis-name'),
+        emHex: document.getElementById('sw-emphasis-hex'),
+        accBox: document.getElementById('sw-accent-box'),
+        accName: document.getElementById('sw-accent-name'),
+        accHex: document.getElementById('sw-accent-hex'),
+        hlHex: document.getElementById('sw-hl-hex')
+      };
+
+      function setPalette(key) {
+        const safeKey = palettes[key] ? key : '1';
+        const p = palettes[safeKey];
+        root.setAttribute('data-palette', safeKey);
+
+        if (els.note) els.note.textContent = p.note;
+        if (els.paperName) els.paperName.textContent = p.paperName;
+        if (els.paperHex) els.paperHex.textContent = p.paperHex;
+        if (els.inkBox) els.inkBox.style.backgroundColor = p.inkHex;
+        if (els.inkName) els.inkName.textContent = p.inkName;
+        if (els.inkHex) els.inkHex.textContent = p.inkHex;
+        if (els.mutedBox) els.mutedBox.style.backgroundColor = p.mutedHex;
+        if (els.mutedName) els.mutedName.textContent = p.mutedName;
+        if (els.mutedHex) els.mutedHex.textContent = p.mutedHex;
+        if (els.emBox) els.emBox.style.backgroundColor = p.emHex;
+        if (els.emName) els.emName.textContent = p.emName;
+        if (els.emHex) els.emHex.textContent = p.emHex;
+        if (els.accBox) els.accBox.style.backgroundColor = p.accHex;
+        if (els.accName) els.accName.textContent = p.accName;
+        if (els.accHex) els.accHex.textContent = p.accHex;
+        if (els.hlHex) els.hlHex.textContent = p.hlHex;
+
+        paletteButtons.forEach((btn) => {
+          btn.classList.toggle('is-active', btn.dataset.palette === key);
+        });
+      }
+
+      paletteButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          setPalette(btn.dataset.palette);
+        });
+      });
+
+      // Highlighter sweep animation with gentle stagger
+      const highlights = Array.from(document.querySelectorAll('.hl'));
+      let hlTimers = [];
+
+      function playHighlights() {
+        hlTimers.forEach((id) => clearTimeout(id));
+        hlTimers = [];
+
+        highlights.forEach((el) => {
+          el.classList.remove('hl-active');
+          el.classList.add('hl-reset');
+        });
+
+        // Force reflow so transition resets cleanly to 0%
+        void document.body.offsetWidth;
+
+        requestAnimationFrame(() => {
+          highlights.forEach((el, index) => {
+            el.classList.remove('hl-reset');
+            const timer = setTimeout(() => {
+              el.classList.add('hl-active');
+            }, 90 + index * 140);
+            hlTimers.push(timer);
+          });
+        });
+      }
+
+      const replayBtn = document.getElementById('btn-replay-hl');
+      if (replayBtn) {
+        replayBtn.addEventListener('click', playHighlights);
+      }
+
+      // Play once on initial load after fonts settle
+      window.addEventListener('load', () => {
+        setTimeout(playHighlights, 220);
+      });
+    })();
+  </script>
+</body>
+</html>

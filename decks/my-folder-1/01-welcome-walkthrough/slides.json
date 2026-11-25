@@ -1,0 +1,163 @@
+{
+  "title": "Hướng dẫn nhanh Studio Deck",
+  "subtitle": "Walkthrough trực quan toàn bộ tính năng trình chiếu, bảng màu, công cụ giảng dạy và quy trình cá nhân hóa bằng AI.",
+  "author": "Studio Deck Starter Kit",
+  "date": "2026-11",
+  "defaultTheme": "1",
+  "defaultGrid": true,
+  "slides": [
+    {
+      "type": "cover",
+      "chapter": "Opening",
+      "kicker": "Welcome Walkthrough",
+      "title": "Trình chiếu sạch mắt theo phong cách *Editorial Study Note*",
+      "subtitle": "Biến mọi tài liệu thô thành ==slide 16:9, bài tập tương tác và trình đọc PDF== mà không cần đụng tay vào code hay JSON.",
+      "meta": [
+        {
+          "label": "STARTER KIT",
+          "value": "STUDIO DECK"
+        },
+        {
+          "label": "MODE",
+          "value": "Slide Deck · Test Deck · PDF Deck"
+        }
+      ]
+    },
+    {
+      "type": "toc",
+      "chapter": "Contents",
+      "kicker": "Table of Contents",
+      "title": "Lộ trình *khám phá* trong 2 phút",
+      "subtitle": "Bấm trực tiếp vào từng mục bên dưới để nhảy tới tính năng bạn muốn xem thử."
+    },
+    {
+      "type": "grid",
+      "chapter": "3 Workspaces",
+      "kicker": "Section 01 · Full Mode vs Custom Mode",
+      "title": "Một ứng dụng, *ba không gian* trình chiếu",
+      "columns": 3,
+      "items": [
+        {
+          "number": "01",
+          "icon": "layers",
+          "title": "Slide Deck",
+          "body": "Thuyết trình truyền thống với ==7 layout chuẩn 16:9==, lưới caro nhẹ và chữ dễ đọc từ xa."
+        },
+        {
+          "number": "02",
+          "icon": "target",
+          "title": "Test Deck",
+          "body": "Trình chiếu bài tập, quiz, điền từ, nối ý và trắc nghiệm có nút mở đáp án từng bước."
+        },
+        {
+          "number": "03",
+          "icon": "book",
+          "title": "PDF Deck",
+          "body": "Mở sách hoặc tài liệu PDF toàn màn hình, hỗ trợ 1 trang / 2 trang và vẽ trực tiếp lên trang."
+        }
+      ]
+    },
+    {
+      "type": "editorial",
+      "chapter": "Visual System",
+      "chapterNum": "02",
+      "kicker": "Section 02 · Typography & Palettes",
+      "title": "Đổi *bảng màu* và nền caro ngay lúc đang nói",
+      "body": [
+        "Nhìn xuống góc dưới bên trái màn hình: bấm vào **4 ô màu vuông** để chuyển nhanh giữa 2 tông sáng (Summer Vibe, Deep Forest) và 2 tông tối (Starry Night, Neon Tokyo).",
+        "Bấm phím **G** để bật hoặc tắt lưới ô caro 4%. Trong lúc giảng, các cụm ==được đánh dấu== sẽ tự quét nét dạ quang mượt mỗi khi bạn sang trang."
+      ],
+      "steps": [
+        "Summer Vibe",
+        "Deep Forest",
+        "Starry Night",
+        "Neon Tokyo"
+      ],
+      "noteLabel": "Mẹo cá nhân hóa",
+      "note": "Bạn có thể gửi ảnh bảng màu từ Pinterest hoặc mã HEX cho AI trong bước setup để tạo riêng bộ màu thương hiệu cho mình."
+    },
+    {
+      "type": "grid",
+      "chapter": "Live Tools",
+      "kicker": "Section 03 · Presenter Toolkit",
+      "title": "Bộ công cụ *tương tác trực tiếp* trên màn hình",
+      "columns": 3,
+      "items": [
+        {
+          "number": "01",
+          "icon": "pen",
+          "title": "Vẽ, Khung & Dạ quang",
+          "body": "Phím **D** vẽ tay, **R** kẻ khung chữ nhật, **T** gõ chữ, **H** quét highlight trực tiếp lên chữ hoặc PDF."
+        },
+        {
+          "number": "02",
+          "icon": "spark",
+          "title": "Laser & Spotlight",
+          "body": "Phím **L** bật tia laser dẫn mắt người xem; **S** làm tối xung quanh để gom tiêu điểm vào 1 vùng duy nhất."
+        },
+        {
+          "number": "03",
+          "icon": "clock",
+          "title": "Note Box & Mini Timer",
+          "body": "Phím **N** mở hộp ghi chú theo từng slide (ghim gọn vào mép phải); **M** bật đồng hồ đếm ngược có chuông."
+        }
+      ]
+    },
+    {
+      "type": "chart",
+      "chapter": "AI Workflow",
+      "kicker": "Section 04 · AI-First Setup",
+      "title": "Bốn bước để *AI cá nhân hóa* toàn bộ app cho bạn",
+      "body": [
+        "Bạn không cần tự sửa file cấu hình. Hãy mở thư mục dự án bằng Antigravity, Codex, Claude Desktop hoặc Cursor rồi nhắn: **Đọc README.md và tiến hành setup**."
+      ],
+      "noteLabel": "Zero-Code Workflow",
+      "note": "Sau khi setup xong 1 lần, mỗi lần cần bài mới bạn chỉ cần gửi dàn ý, file Word hoặc ảnh chụp để AI tự tạo deck mới.",
+      "chartTitle": "Tiến trình cá nhân hóa",
+      "chartScale": "Bước 1 -> Bước 4",
+      "bars": [
+        {
+          "label": "1. Khai báo nghề & mục tiêu",
+          "value": 25,
+          "detail": "AI phân tích lĩnh vực và tư vấn cấu trúc phù hợp"
+        },
+        {
+          "label": "2. Chọn Mode & Bảng màu",
+          "value": 55,
+          "detail": "Full Mode 3 mục hoặc Custom Mode + màu cá nhân"
+        },
+        {
+          "label": "3. Gắn Tên Brand & Logo",
+          "value": 80,
+          "detail": "Thả logo vào assets/images/ hoặc paste thẳng vào chat"
+        },
+        {
+          "label": "4. Sinh Deck & Trình chiếu",
+          "value": 100,
+          "detail": "Tự tạo bài giảng, quiz tương tác và mở localhost"
+        }
+      ]
+    },
+    {
+      "type": "quote",
+      "chapter": "Design Principle",
+      "quote": "Slide tốt không chứa toàn bộ lời bạn định nói. Nó chỉ giữ lại *đúng một điểm tựa* để người nghe nhìn 3 giây là hiểu.",
+      "author": "STUDIO DECK",
+      "role": "Editorial Presentation Philosophy"
+    },
+    {
+      "type": "closing",
+      "chapter": "Next Step",
+      "kicker": "Section 05 · Start Now",
+      "title": "Thử bấm xong rồi thì *cá nhân hóa* ngay thôi",
+      "summary": "Bạn đã đi qua toàn bộ tính năng chính của Slide Deck. Bước tiếp theo chỉ mất khoảng 3 phút cùng AI Agent của bạn.",
+      "points": [
+        "Quay về trang chủ (**Esc**) và mở thử thư mục **02 · Test Deck** để trải nghiệm bài tập tương tác.",
+        "Thử bấm nút **+ Mở PDF khác** hoặc thả 1 file `.pdf` vào `decks/course-books/` để xem trình đọc PDF.",
+        "Mở AI Agent trong thư mục này và nhắn ==Đọc README.md và tiến hành setup== để AI tự thay tên, logo và bảng màu riêng của bạn."
+      ],
+      "cta": "Sẵn sàng tạo bộ Slide của riêng bạn",
+      "contact": "Mở README.md để bắt đầu"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "name": "dukich-studio",
+  "version": "1.0.0",
+  "description": "Du Kich Studio - Local-first editorial slide presenter, document viewer (PDF/Word/PPTX), interactive question engine, and infinite whiteboard for teachers and presenters.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "IELTS Du Kich <https://github.com/trungo0512>",
+  "homepage": "https://github.com/trungo0512/dukich-studio#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trungo0512/dukich-studio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/trungo0512/dukich-studio/issues"
+  },
+  "keywords": [
+    "slides",
+    "presentation",
+    "teaching-tools",
+    "whiteboard",
+    "excalidraw",
+    "pdf-viewer",
+    "vite",
+    "local-first",
+    "education"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 5288"
+  },
+  "devDependencies": {
+    "vite": "^6.2.0"
+  },
+  "dependencies": {
+    "@excalidraw/excalidraw": "^0.18.1",
+    "docx-preview": "^0.4.1",
+    "jszip": "^3.10.2",
+    "pdfjs-dist": "^6.5.438",
+    "pptx-preview": "^1.0.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

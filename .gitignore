@@ -1,0 +1,17 @@
+# Dependencies & build output
+node_modules/
+dist/
+
+# Environment & logs
+.env
+.env.*
+*.log
+npm-debug.log*
+
+# OS & editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+backup/

@@ -1,0 +1,93 @@
+{
+  "isTemplate": true,
+  "title": "Tên bài thuyết trình mẫu",
+  "subtitle": "Mô tả ngắn gọn mục tiêu bài trình bày trong 1-2 câu.",
+  "author": "Your Name · Studio Deck",
+  "date": "2026-11",
+  "defaultTheme": "1",
+  "defaultGrid": true,
+  "slides": [
+    {
+      "type": "cover",
+      "chapter": "Opening",
+      "kicker": "Starter Template",
+      "title": "Tiêu đề lớn có *từ khóa nhấn* bằng Playfair",
+      "subtitle": "Câu dẫn ngắn giúp người nghe nắm ngay ==ý cốt lõi của bài trình bày==.",
+      "meta": [
+        {
+          "label": "AUTHOR",
+          "value": "YOUR BRAND"
+        },
+        {
+          "label": "TOPIC",
+          "value": "Presentation · Training · Workshop"
+        }
+      ]
+    },
+    {
+      "type": "toc",
+      "chapter": "Contents",
+      "kicker": "Table of Contents",
+      "title": "Mục lục *nội dung*",
+      "subtitle": "Bấm vào từng mục để nhảy nhanh tới phần tương ứng."
+    },
+    {
+      "type": "editorial",
+      "chapter": "Core Theory",
+      "chapterNum": "01",
+      "kicker": "Section 01 · Key Concept",
+      "title": "Tiêu đề đoạn *phân tích*",
+      "body": [
+        "Đoạn 1 trình bày ngắn gọn, dùng ==highlight vàng== cho câu cần nhớ nhất.",
+        "Đoạn 2 mở rộng thêm **chi tiết thực tế** hoặc ví dụ đi kèm."
+      ],
+      "noteLabel": "Key Takeaway",
+      "note": "Mỗi slide chỉ nên giữ 1 ý lớn để người xem không bị rối mắt."
+    },
+    {
+      "type": "grid",
+      "chapter": "Framework",
+      "kicker": "Section 02 · Step-by-Step",
+      "title": "Ba bước *triển khai*",
+      "columns": 3,
+      "items": [
+        {
+          "number": "01",
+          "title": "Bước một",
+          "body": "Mô tả ngắn gọn bước đầu tiên."
+        },
+        {
+          "number": "02",
+          "title": "Bước hai",
+          "body": "Mô tả ngắn gọn ==điểm mấu chốt==."
+        },
+        {
+          "number": "03",
+          "title": "Bước ba",
+          "body": "Mô tả kết quả đầu ra."
+        }
+      ]
+    },
+    {
+      "type": "quote",
+      "chapter": "Key Insight",
+      "quote": "Một câu nói ngắn, sắc và *đúng trọng tâm* giúp người nghe dừng lại suy ngẫm.",
+      "author": "YOUR NAME",
+      "role": "YOUR BRAND"
+    },
+    {
+      "type": "closing",
+      "chapter": "Key Summary",
+      "kicker": "Section 03 · Action Plan",
+      "title": "Ba điều cần *mang về*",
+      "summary": "Tóm gọn thông điệp cuối cùng để người xem nhớ rõ việc cần làm tiếp theo.",
+      "points": [
+        "Gạch đầu dòng 1 ngắn gọn.",
+        "Gạch đầu dòng 2 ==có nhấn mạnh==.",
+        "Gạch đầu dòng 3 rõ hành động."
+      ],
+      "cta": "Hỏi đáp & Thực hành",
+      "contact": "yourbrand.com"
+    }
+  ]
+}

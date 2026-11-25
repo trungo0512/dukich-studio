@@ -1,0 +1,190 @@
+/* =========================================================
+   Editorial Study Note - Starter Palettes & Paper Grid
+   Matches brandsheet.html
+   ========================================================= */
+
+:root,
+html[data-palette="1"] {
+  /* Default Theme 1 (Light): Summer Vibe - Tangerine Italic + Lagoon Teal Accent */
+  --paper: #F6FBF9;
+  --paper-elevated: #EAF4F0;
+  --card-bg: rgba(246, 251, 249, 0.90);
+  --toolbar-bg: rgba(246, 251, 249, 0.93);
+  --paper-border: rgba(0, 131, 143, 0.16);
+  --grid-rgb: 15, 41, 38;
+  --ink-primary: #0F2926;
+  --ink-secondary: #54736E;
+  --brand-emphasis: #FF5722;
+  --ghost-stroke: rgba(255, 87, 34, 0.24);
+  --accent: #00838F;
+  --accent-soft: rgba(0, 131, 143, 0.11);
+  --tool-folder-accent: #FF5722;
+  --tool-folder-soft: rgba(255, 87, 34, 0.12);
+  --tool-folder-fg: rgba(255, 255, 255, 0.88);
+  --hl-color: rgba(255, 214, 48, 0.80);
+  --hl-text: #0A1F1C;
+  --progress-track: rgba(15, 41, 38, 0.14);
+  --progress-done: rgba(15, 41, 38, 0.34);
+  --wireframe-ink: #00838F;
+  --btn-active-bg: #00838F;
+  --btn-active-fg: #F6FBF9;
+  --grid-alpha: 0.04;
+  --grid-size: 28px;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Theme 2 (Light): Deep Lake - Glacier Ice #9CBFD6 + Granite Black #2B2E36 + Steppe Yellow #C4A654 + Deep Lake Blue #1C4066 */
+html[data-palette="2"] {
+  --paper: #F2F7FA;
+  --paper-elevated: #E5EFF6;
+  --card-bg: rgba(247, 250, 253, 0.92);
+  --toolbar-bg: rgba(242, 247, 250, 0.93);
+  --paper-border: rgba(28, 64, 102, 0.16);
+  --grid-rgb: 43, 46, 54;
+  --ink-primary: #2B2E36;
+  --ink-secondary: #53667A;
+  --brand-emphasis: #C4A654;
+  --ghost-stroke: rgba(156, 191, 214, 0.42);
+  --accent: #1C4066;
+  --accent-soft: rgba(28, 64, 102, 0.11);
+  --tool-folder-accent: #C4A654;
+  --tool-folder-soft: rgba(196, 166, 84, 0.15);
+  --tool-folder-fg: rgba(43, 46, 54, 0.84);
+  --hl-color: rgba(156, 191, 214, 0.62);
+  --hl-text: #2B2E36;
+  --progress-track: rgba(43, 46, 54, 0.14);
+  --progress-done: rgba(43, 46, 54, 0.34);
+  --wireframe-ink: #1C4066;
+  --btn-active-bg: #1C4066;
+  --btn-active-fg: #F2F7FA;
+}
+
+/* Theme 3 (Dark): Starry Night - Navy Blue #0D1B2A + Golden Yellow #F4B400 (Main) + Sky Blue #D0E3FF (Secondary) + Venus #BAD6EB */
+html[data-palette="3"] {
+  color-scheme: dark;
+  --paper: #0D1B2A;
+  --paper-elevated: #142538;
+  --card-bg: rgba(20, 37, 56, 0.86);
+  --toolbar-bg: rgba(13, 27, 42, 0.92);
+  --paper-border: rgba(242, 243, 243, 0.13);
+  --grid-rgb: 242, 243, 243;
+  --ink-primary: #F2F3F3;
+  --ink-secondary: #BAD6EB;
+  --brand-emphasis: #F4B400;
+  --ghost-stroke: rgba(208, 227, 255, 0.22);
+  --accent: #D0E3FF;
+  --accent-soft: rgba(208, 227, 255, 0.14);
+  --tool-folder-accent: #D0E3FF;
+  --tool-folder-soft: rgba(208, 227, 255, 0.14);
+  --tool-folder-fg: rgba(13, 27, 42, 0.84);
+  --hl-color: rgba(244, 180, 0, 0.46);
+  --hl-text: #FFFDF2;
+  --progress-track: rgba(242, 243, 243, 0.16);
+  --progress-done: rgba(242, 243, 243, 0.40);
+  --wireframe-ink: #F2F3F3;
+  --btn-active-bg: #F4B400;
+  --btn-active-fg: #0D1B2A;
+}
+
+/* Theme 4 (Dark): Cyberpunk Tokyo - Electric Neon Blue #00D4FF + Cyber Pink #FF2E88 */
+html[data-palette="4"] {
+  color-scheme: dark;
+  --paper: #090B14;
+  --paper-elevated: #111526;
+  --card-bg: rgba(17, 21, 38, 0.88);
+  --toolbar-bg: rgba(9, 11, 20, 0.94);
+  --paper-border: rgba(0, 212, 255, 0.20);
+  --grid-rgb: 0, 212, 255;
+  --ink-primary: #EEF4FF;
+  --ink-secondary: #8B9BBF;
+  --brand-emphasis: #00D4FF;
+  --ghost-stroke: rgba(0, 212, 255, 0.26);
+  --accent: #FF2E88;
+  --accent-soft: rgba(255, 46, 136, 0.16);
+  --tool-folder-accent: #00D4FF;
+  --tool-folder-soft: rgba(0, 212, 255, 0.14);
+  --tool-folder-fg: rgba(9, 11, 20, 0.86);
+  --note-box-fg: #EEF4FF;
+  --hl-color: rgba(0, 212, 255, 0.42);
+  --hl-text: #F2FAFF;
+  --progress-track: rgba(238, 244, 255, 0.15);
+  --progress-done: rgba(0, 212, 255, 0.45);
+  --wireframe-ink: #00D4FF;
+  --btn-active-bg: #00D4FF;
+  --btn-active-fg: #090B14;
+}
+
+html[data-grid="off"] {
+  --grid-alpha: 0;
+}
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--paper);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.22s ease, color 0.22s ease;
+}
+
+/* Graph-paper grid surface */
+.paper-grid {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(to right, rgba(var(--grid-rgb), var(--grid-alpha)) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--grid-rgb), var(--grid-alpha)) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: -1px -1px;
+}
+
+/* Inline Typography Helpers */
+.em-serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--brand-emphasis);
+}
+
+/* Highlighter Pen Effect (.hl) */
+.hl {
+  display: inline;
+  color: var(--hl-text);
+  font-weight: 600;
+  padding: 0 5px 1px 5px;
+  margin: 0 -2px;
+  border-radius: 4px 3px 4px 3px;
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 22%,
+    var(--hl-color) 22%,
+    var(--hl-color) 96%,
+    transparent 96%
+  );
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 0% 100%;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hl.hl-active {
+  background-size: 100% 100%;
+}
+
+.hl.hl-reset {
+  transition: none !important;
+  background-size: 0% 100% !important;
+}

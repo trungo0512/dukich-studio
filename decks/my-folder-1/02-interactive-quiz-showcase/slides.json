@@ -1,0 +1,195 @@
+{
+  "title": "Trải nghiệm Test Deck tương tác",
+  "subtitle": "Walkthrough thực tế các dạng câu hỏi tương tác: Accordion mở đề từng bước, Nối ý đồng bộ, Điền từ tự highlight dẫn chứng, Flow-Chart và Trắc nghiệm.",
+  "author": "Studio Deck Starter Kit",
+  "date": "2026-11",
+  "defaultTheme": "2",
+  "defaultGrid": true,
+  "slides": [
+    {
+      "type": "cover",
+      "chapter": "Opening",
+      "kicker": "Interactive Engine Showcase",
+      "title": "Dạy bài tập & *Quiz tương tác* trực tiếp trên slide",
+      "subtitle": "Chữa bài theo từng nhịp: ==mở đề -> xem dẫn chứng -> hiện đáp án== để giữ trọn sự tập trung của người học.",
+      "meta": [
+        {
+          "label": "SHOWCASE",
+          "value": "TEST DECK ENGINE"
+        },
+        {
+          "label": "FORMATS",
+          "value": "Accordion · Matching · Fill-in · Flow-Chart · MCQ"
+        }
+      ]
+    },
+    {
+      "type": "toc",
+      "chapter": "Contents",
+      "kicker": "Table of Contents",
+      "title": "Năm dạng *tương tác* tiêu biểu",
+      "subtitle": "Mỗi slide dưới đây là một dạng bài tập bạn có thể bảo AI tự sinh ra cho môn học hoặc buổi đào tạo của mình."
+    },
+    {
+      "type": "questions",
+      "chapter": "Group A · Accordion",
+      "kicker": "Format 01 · True / False / Not Given",
+      "title": "Mở đề từng câu & *Xem dẫn chứng* (Accordion)",
+      "instruction": "Bấm vào từng thẻ câu hỏi để mở nội dung. Bấm icon con mắt để xem dẫn chứng, bấm icon dấu tích để mở đáp án.",
+      "question_type": "rtf",
+      "questions": [
+        {
+          "q_num": 1,
+          "question_text": "Người dùng bắt buộc phải tự viết mã JSON thủ công mới có thể tạo được bộ slide mới trong app này.",
+          "answer": "FALSE",
+          "evidence": "Trong quy trình AI-First của Studio Deck, bạn chỉ cần gửi dàn ý, file Word hoặc ảnh chụp cho AI Agent; AI sẽ tự đọc DECK_GUIDE.md và sinh toàn bộ file slides.json chuẩn cấu trúc."
+        },
+        {
+          "q_num": 2,
+          "question_text": "Các hộp ghi chú (Note Box) được lưu riêng theo từng slide và giữ nguyên trạng thái mở hoặc ghim mép khi bạn quay lại.",
+          "answer": "TRUE",
+          "evidence": "Mỗi slide hoặc trang PDF có không gian Note Box độc lập trong suốt phiên trình chiếu: ghim gọn Note 1 ở slide 3 thì sang slide 4 sẽ sạch màn hình, quay lại slide 3 Note 1 vẫn nằm đúng vị trí cũ."
+        },
+        {
+          "q_num": 3,
+          "question_text": "App chỉ chạy được trên máy tính Windows và không hỗ trợ trình duyệt trên macOS.",
+          "answer": "NOT GIVEN",
+          "evidence": "Tài liệu chỉ nêu ứng dụng chạy trên Vite localhost và mọi trình duyệt hiện đại (Chrome, Edge, Safari), không giới hạn riêng hệ điều hành Windows."
+        }
+      ]
+    },
+    {
+      "type": "questions",
+      "chapter": "Group B · Matching",
+      "kicker": "Format 02 · Matching Features",
+      "title": "Bảng lựa chọn cố định & *Sáng đồng bộ* đáp án",
+      "instruction": "Nối từng tình huống giảng dạy bên phải với phím tắt phù hợp ở bảng bên trái. Bấm mở đáp án để thấy lựa chọn tương ứng sáng lên.",
+      "question_type": "rmf",
+      "options_title": "Công cụ trình chiếu",
+      "options": [
+        {
+          "key": "A",
+          "text": "Phím H - Bút dạ quang (Highlighter)"
+        },
+        {
+          "key": "B",
+          "text": "Phím N - Hộp ghi chú nhanh (Note Box)"
+        },
+        {
+          "key": "C",
+          "text": "Phím M - Đồng hồ đếm ngược (Mini Timer)"
+        },
+        {
+          "key": "D",
+          "text": "Phím S - Đèn chiếu tập trung (Spotlight)"
+        }
+      ],
+      "questions": [
+        {
+          "q_num": 4,
+          "question_text": "Muốn cho cả lớp 2 phút thảo luận nhóm và có tiếng chuông nhẹ báo hết giờ.",
+          "answer": "C",
+          "evidence": "Mini Timer (phím M) có sẵn các mốc 30s, 1m, 2m, 5m hoặc gõ số tùy chỉnh, kèm tiếng chuông Web Audio dịu nhẹ kéo dài 2 giây khi hết giờ."
+        },
+        {
+          "q_num": 5,
+          "question_text": "Muốn ghi nhanh từ vựng hoặc ý hay học viên vừa phát biểu ngay trên slide hiện tại rồi ghim gọn vào cạnh phải.",
+          "answer": "B",
+          "evidence": "Note Box (phím N) xuất hiện giữa màn hình, tự xoay màu theo bảng màu đang dùng và có nút ghim gọn thành thẻ Note 1, Note 2 ở mép phải."
+        },
+        {
+          "q_num": 6,
+          "question_text": "Muốn làm tối toàn bộ phần còn lại của trang để khán giả chỉ nhìn vào đúng 1 biểu đồ hoặc 1 đoạn văn.",
+          "answer": "D",
+          "evidence": "Chế độ Spotlight (phím S) tạo vòng sáng theo con trỏ chuột và làm dịu tối xung quanh để gom 100% sự chú ý."
+        }
+      ]
+    },
+    {
+      "type": "questions",
+      "chapter": "Group C · Summary",
+      "kicker": "Format 03 · Summary Completion",
+      "title": "Điền từ & *Tự động tô sáng* đáp án trong dẫn chứng",
+      "instruction": "Bấm vào từng ô trống được đánh số bên dưới để mở thanh điều khiển, sau đó bật Evidence và Answer để xem từ đáp án tự nổi bật.",
+      "question_type": "rsmc1",
+      "summary_title": "Quy trình cá nhân hóa bộ Starter Kit",
+      "summary_text": "Khi mới nhận thư mục dự án, bạn chỉ cần nhắn AI Agent đọc file [7] và tiến hành setup. Sau khi trả lời các câu hỏi về nghề nghiệp, màu sắc và logo, bạn có thể chọn chế độ [8] nếu muốn dùng đủ cả Slide Deck, Test Deck và PDF Deck. Cuối cùng, AI sẽ tự khởi chạy máy chủ [9] để bạn xem ngay thành quả trên trình duyệt.",
+      "questions": [
+        {
+          "q_num": 7,
+          "question_text": "Tên file hướng dẫn AI Agent tự động setup ở thư mục gốc",
+          "answer": "README.md",
+          "evidence": "Toàn bộ kịch bản để AI Agent tự phỏng vấn và cài đặt trọn gói nằm gọn trong một file duy nhất là README.md ở thư mục gốc của dự án."
+        },
+        {
+          "q_num": 8,
+          "question_text": "Tên chế độ bật đầy đủ cả 3 thư mục trình chiếu",
+          "answer": "Full Mode",
+          "evidence": "Người dùng có thể chọn Full Mode để giữ nguyên cả 3 không gian làm việc, hoặc Custom Mode để chỉ giữ lại những thư mục thực sự cần dùng."
+        },
+        {
+          "q_num": 9,
+          "question_text": "Tên máy chủ nội bộ chạy trên máy tính cá nhân",
+          "answer": "localhost",
+          "evidence": "Ứng dụng chạy hoàn toàn trên máy của bạn thông qua máy chủ localhost của Vite, không cần thuê hosting hay phụ thuộc mạng chậm."
+        }
+      ]
+    },
+    {
+      "type": "questions",
+      "chapter": "Group C · Flow-Chart",
+      "kicker": "Format 04 · Process Flow-Chart",
+      "title": "Sơ đồ quy trình *tự dựng khung* từ văn bản",
+      "instruction": "Engine tự chuyển chuỗi mũi tên thành sơ đồ quy trình sắc nét kèm ô điền từ tương tác.",
+      "question_type": "rdfc",
+      "questions": [
+        {
+          "q_num": 10,
+          "question_text": "Chuẩn bị nội dung thô (Word, PDF hoặc ảnh chụp) -> Dán vào khung chat cùng yêu cầu tạo bài mới -> AI đọc tài liệu chuẩn hóa [10]",
+          "answer": "DECK_GUIDE.md",
+          "evidence": "AI luôn tham chiếu file DECK_GUIDE.md để chọn đúng cấu trúc layout 16:9 và định dạng câu hỏi tương tác."
+        },
+        {
+          "q_num": 11,
+          "question_text": "AI tạo thư mục bài mới trong decks/ -> Lưu file slides.json -> Trình duyệt tự động tải lại và hiển thị [11] mới trong thư viện",
+          "answer": "deck",
+          "evidence": "Plugin theo dõi thư mục decks/ của Vite giúp mọi deck mới tạo ra xuất hiện ngay lập tức ở trang chủ mà không cần khởi động lại server."
+        }
+      ]
+    },
+    {
+      "type": "questions",
+      "chapter": "Group D · MCQ",
+      "kicker": "Format 05 · Multiple Choice",
+      "title": "Trắc nghiệm *2 cột* gọn gàng",
+      "instruction": "Bấm vào câu hỏi để mở 4 phương án trả lời, sau đó bấm mở đáp án hoặc dẫn chứng.",
+      "question_type": "rmcq1",
+      "questions": [
+        {
+          "q_num": 12,
+          "question_text": "Cách nhanh nhất để một file PDF luôn xuất hiện sẵn trong thư mục 03 · PDF Deck là gì?",
+          "options": [
+            {
+              "key": "A",
+              "text": "Chuyển đổi file PDF thành hàng trăm ảnh PNG rồi nhúng vào slide."
+            },
+            {
+              "key": "B",
+              "text": "Copy thẳng file .pdf đó vào thư mục decks/course-books/."
+            },
+            {
+              "key": "C",
+              "text": "Chỉnh sửa mã nguồn trong file src/main.js cho từng cuốn sách."
+            },
+            {
+              "key": "D",
+              "text": "Tải file lên một trang web bên thứ ba rồi dán đường link vào."
+            }
+          ],
+          "answer": "B",
+          "evidence": "Bản Starter Kit tự động quét mọi file .pdf nằm trong decks/course-books/ để hiển thị ngay trong thư mục PDF Deck. Ngoài ra bạn vẫn có nút + Mở PDF khác ở trang chủ để mở nhanh file bất kỳ trên máy."
+        }
+      ]
+    }
+  ]
+}
