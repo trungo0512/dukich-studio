@@ -6,6 +6,7 @@
  */
 
 import { getLoadedKatex, hasMathExpression, loadKatex, renderMixedMathHtmlSync } from '../lib/stemMath.js';
+import { t } from '../lib/i18n.js';
 import { insertTextIntoInput } from './stemPicker.js';
 
 function readAccentColor() {
@@ -368,7 +369,7 @@ export function createTeacherTools(
         delBtn.type = 'button';
         delBtn.className = 'teacher-ann-del';
         delBtn.textContent = '×';
-        delBtn.title = 'Xóa phần tử này (Delete / Backspace)';
+        delBtn.title = t('delAnnTitle');
         delBtn.style.left = `${Math.min(w - 14, Math.max(14, b.x2 + 4))}px`;
         delBtn.style.top = `${Math.max(14, b.y1 - 4)}px`;
         delBtn.addEventListener('pointerdown', (e) => {
@@ -397,7 +398,7 @@ export function createTeacherTools(
       node.style.left = `${item.x * 100}%`;
       node.style.top = `${item.y * 100}%`;
       node.style.fontSize = `${fontSize}px`;
-      node.title = 'Kéo để di chuyển · Kéo 4 góc để phóng to/thu nhỏ · Double-click để sửa · Delete để xóa';
+      node.title = t('textNodeTitle');
 
       const contentSpan = document.createElement('span');
       contentSpan.className = 'teacher-text-content';
@@ -418,7 +419,7 @@ export function createTeacherTools(
       textDelBtn.type = 'button';
       textDelBtn.className = 'teacher-text-del';
       textDelBtn.textContent = '×';
-      textDelBtn.title = 'Xóa hộp chữ này (Delete)';
+      textDelBtn.title = t('delTextTitle');
       textDelBtn.addEventListener('pointerdown', (e) => {
         e.stopPropagation();
         e.preventDefault();

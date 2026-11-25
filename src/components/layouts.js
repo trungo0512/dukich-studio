@@ -1,5 +1,6 @@
 import { escapeHtml, parseInline, stripMarkup } from '../lib/markdown.js';
 import { resolveDeckImage } from '../lib/decks.js';
+import { t } from '../lib/i18n.js';
 
 const ICON_PATHS = {
   bulb: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.8 10.65c.68.56 1.13 1.36 1.24 2.24L9.5 16.5h5l.06-.61c.11-.88.56-1.68 1.24-2.24A6 6 0 0 0 12 3Z" fill="currentColor" fill-opacity="0.14"/>',
@@ -1384,10 +1385,10 @@ function renderStructuredQuestions(slide, qType, optionBoxHtml, hasOptionBox, de
           .join('')}
       </div>
       <div class="q-actions qc-actions">
-        <button type="button" class="q-icon-btn" data-qc-action="evidence" title="Hiện / Ẩn Evidence" disabled>
+        <button type="button" class="q-icon-btn" data-qc-action="evidence" title="${escapeHtml(t('evBtnTitle'))}" disabled>
           ${Q_ICON_EVIDENCE}
         </button>
-        <button type="button" class="q-icon-btn" data-qc-action="answer" title="Hiện / Ẩn Đáp án" disabled>
+        <button type="button" class="q-icon-btn" data-qc-action="answer" title="${escapeHtml(t('ansBtnTitle'))}" disabled>
           ${Q_ICON_ANSWER}
         </button>
       </div>
@@ -1413,7 +1414,7 @@ function renderStructuredQuestions(slide, qType, optionBoxHtml, hasOptionBox, de
           <aside class="qc-notes-right" aria-label="Evidence Panel">
             <div class="qc-side-ev-empty">
               <span class="qc-side-ev-kicker">EVIDENCE PANEL</span>
-              <p>Chọn ô trống hoặc số câu bên trái rồi bấm icon Evidence để đối chiếu nguyên văn.</p>
+              <p>${escapeHtml(t('evPanelHint'))}</p>
             </div>
             <div class="qc-ev-drawer qc-side-ev-drawer" data-qc-ev-drawer aria-hidden="true">
               <div class="q-evidence-box qc-side-evidence-box">${evidencePanelsHtml}</div>

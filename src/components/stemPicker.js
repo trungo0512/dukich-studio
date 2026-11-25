@@ -6,12 +6,13 @@
  */
 
 import { escapeHtml } from '../lib/markdown.js';
+import { onLangChange, t } from '../lib/i18n.js';
 import { loadKatex, renderLatexToHtmlSync } from '../lib/stemMath.js';
 
 const SYMBOL_GROUPS = [
   {
     id: 'math',
-    label: 'Toán',
+    labelKey: 'stemGrpMath',
     symbols: [
       ['±', 'Cộng trừ'],
       ['×', 'Nhân'],
@@ -63,7 +64,7 @@ const SYMBOL_GROUPS = [
   },
   {
     id: 'chem',
-    label: 'Hóa',
+    labelKey: 'stemGrpChem',
     symbols: [
       ['→', 'Phản ứng thuận'],
       ['⇌', 'Cân bằng thuận nghịch'],
@@ -107,7 +108,7 @@ const SYMBOL_GROUPS = [
   },
   {
     id: 'phys',
-    label: 'Lý',
+    labelKey: 'stemGrpPhys',
     symbols: [
       ['α', 'Alpha'],
       ['β', 'Beta'],
@@ -151,7 +152,7 @@ const SYMBOL_GROUPS = [
   },
   {
     id: 'sci',
-    label: 'Khoa học',
+    labelKey: 'stemGrpSci',
     symbols: [
       ['α', 'alpha'],
       ['β', 'beta'],
@@ -204,27 +205,27 @@ const SYMBOL_GROUPS = [
 ];
 
 const FORMULA_TEMPLATES = [
-  { label: 'a/b', title: 'Phân số', insert: '\\frac{a}{b}', selectStart: 6, selectEnd: 7 },
-  { label: '√x', title: 'Căn bậc 2', insert: '\\sqrt{x}', selectStart: 6, selectEnd: 7 },
-  { label: 'ⁿ√x', title: 'Căn bậc n', insert: '\\sqrt[n]{x}', selectStart: 6, selectEnd: 7 },
-  { label: 'xⁿ', title: 'Số mũ', insert: 'x^{2}', selectStart: 3, selectEnd: 4 },
-  { label: 'H₂', title: 'Chỉ số dưới', insert: 'H_{2}', selectStart: 3, selectEnd: 4 },
-  { label: '∫', title: 'Tích phân', insert: '\\int_{a}^{b} f(x)\\,dx', selectStart: 6, selectEnd: 7 },
-  { label: '∑', title: 'Tổng Sigma', insert: '\\sum_{i=1}^{n} a_i', selectStart: 12, selectEnd: 13 },
-  { label: 'lim', title: 'Giới hạn', insert: '\\lim_{x \\to 0} ', selectStart: 15, selectEnd: 15 },
-  { label: 'v⃗', title: 'Vectơ', insert: '\\vec{F}', selectStart: 5, selectEnd: 6 },
-  { label: '→[t°]', title: 'Phản ứng có xúc tác/nhiệt độ', insert: '\\xrightarrow{t^\\circ}', selectStart: 13, selectEnd: 20 },
-  { label: '⇌', title: 'Phản ứng thuận nghịch', insert: '\\rightleftharpoons ', selectStart: 19, selectEnd: 19 },
-  { label: 'Hệ PT', title: 'Hệ phương trình', insert: '\\begin{cases} x + y = 5 \\\\ x - y = 1 \\end{cases}', selectStart: 14, selectEnd: 23 }
+  { label: 'a/b', title: 'Fraction', insert: '\\frac{a}{b}', selectStart: 6, selectEnd: 7 },
+  { label: '√x', title: 'Square root', insert: '\\sqrt{x}', selectStart: 6, selectEnd: 7 },
+  { label: 'ⁿ√x', title: 'Nth root', insert: '\\sqrt[n]{x}', selectStart: 6, selectEnd: 7 },
+  { label: 'xⁿ', title: 'Exponent', insert: 'x^{2}', selectStart: 3, selectEnd: 4 },
+  { label: 'H₂', title: 'Subscript', insert: 'H_{2}', selectStart: 3, selectEnd: 4 },
+  { label: '∫', title: 'Integral', insert: '\\int_{a}^{b} f(x)\\,dx', selectStart: 6, selectEnd: 7 },
+  { label: '∑', title: 'Summation', insert: '\\sum_{i=1}^{n} a_i', selectStart: 12, selectEnd: 13 },
+  { label: 'lim', title: 'Limit', insert: '\\lim_{x \\to 0} ', selectStart: 15, selectEnd: 15 },
+  { label: 'v⃗', title: 'Vector', insert: '\\vec{F}', selectStart: 5, selectEnd: 6 },
+  { label: '→[t°]', title: 'Reaction arrow', insert: '\\xrightarrow{t^\\circ}', selectStart: 13, selectEnd: 20 },
+  { label: '⇌', title: 'Equilibrium', insert: '\\rightleftharpoons ', selectStart: 19, selectEnd: 19 },
+  { labelKey: 'stemTplSys', title: 'System of equations', insert: '\\begin{cases} x + y = 5 \\\\ x - y = 1 \\end{cases}', selectStart: 14, selectEnd: 23 }
 ];
 
 const FORMULA_EXAMPLES = [
-  { label: 'PT bậc 2', latex: 'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}' },
-  { label: 'Tích phân', latex: '\\int_0^1 x^2\\,dx = \\frac{1}{3}' },
-  { label: 'Hóa học', latex: '2\\text{H}_2 + \\text{O}_2 \\xrightarrow{t^\\circ} 2\\text{H}_2\\text{O}' },
-  { label: 'Cân bằng', latex: '\\text{N}_2 + 3\\text{H}_2 \\rightleftharpoons 2\\text{NH}_3' },
-  { label: 'Định luật II', latex: '\\vec{F} = m\\vec{a}' },
-  { label: 'Định luật Ohm', latex: 'I = \\frac{U}{R}' }
+  { labelKey: 'stemExQuad', latex: 'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}' },
+  { labelKey: 'stemExInt', latex: '\\int_0^1 x^2\\,dx = \\frac{1}{3}' },
+  { labelKey: 'stemExChem', latex: '2\\text{H}_2 + \\text{O}_2 \\xrightarrow{t^\\circ} 2\\text{H}_2\\text{O}' },
+  { labelKey: 'stemExEq', latex: '\\text{N}_2 + 3\\text{H}_2 \\rightleftharpoons 2\\text{NH}_3' },
+  { labelKey: 'stemExNewton', latex: '\\vec{F} = m\\vec{a}' },
+  { labelKey: 'stemExOhm', latex: 'I = \\frac{U}{R}' }
 ];
 
 function isDarkModeActive() {
@@ -402,18 +403,18 @@ export function createStemPicker(
   function handleSymbolClick(sym) {
     const targetInput = getLiveTargetInput();
     if (targetInput && insertTextIntoInput(targetInput, sym)) {
-      showToast(`Đã chèn: ${sym}`);
+      showToast(t('stemInserted', { s: sym }));
       return;
     }
     if (typeof onInsertSymbol === 'function') {
       const handled = onInsertSymbol(sym);
       if (handled !== false) {
-        showToast(`Đã thêm: ${sym}`);
+        showToast(t('stemAdded', { s: sym }));
         return;
       }
     }
     navigator.clipboard?.writeText?.(sym).catch(() => {});
-    showToast(`Đã copy: ${sym}`);
+    showToast(t('stemCopied', { s: sym }));
   }
 
   async function handleFormulaSubmit() {
@@ -427,7 +428,7 @@ export function createStemPicker(
     inserting = true;
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Đang chèn...';
+      submitBtn.textContent = t('stemInserting');
     }
     try {
       await onInsertFormula(raw, {
@@ -435,20 +436,27 @@ export function createStemPicker(
         editingMeta
       });
       editingMeta = null;
-      showToast('Đã chèn công thức!');
+      showToast(t('stemFormulaInserted'));
     } catch (err) {
-      showToast(err?.message || 'Không thể chèn công thức.');
+      showToast(err?.message || t('stemFormulaErr'));
     } finally {
       inserting = false;
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = editingMeta ? 'Cập nhật công thức' : 'Chèn công thức';
+        submitBtn.textContent = editingMeta ? t('stemUpdateFormula') : t('stemInsertFormula');
       }
     }
   }
 
   function renderPanelBody() {
     if (!panelEl) return;
+    const headTitle = panelEl.querySelector('.stem-head-title');
+    if (headTitle) headTitle.textContent = t('stemTitle');
+    const symTab = panelEl.querySelector('[data-stem-mode="symbols"]');
+    const formTab = panelEl.querySelector('[data-stem-mode="formula"]');
+    if (symTab) symTab.textContent = t('stemTabSymbols');
+    if (formTab) formTab.textContent = t('stemTabFormula');
+
     const bodyEl = panelEl.querySelector('#stem-body');
     if (!bodyEl) return;
 
@@ -463,7 +471,7 @@ export function createStemPicker(
           ${SYMBOL_GROUPS.map(
             (g) => `
             <button type="button" class="stem-subtab ${g.id === grp.id ? 'is-active' : ''}" data-stem-group="${g.id}" role="tab" aria-selected="${g.id === grp.id}">
-              ${escapeHtml(g.label)}
+              ${escapeHtml(t(g.labelKey))}
             </button>`
           ).join('')}
         </div>
@@ -479,11 +487,11 @@ export function createStemPicker(
           ${grp.snippets
             .map(
               (sn) => `
-            <button type="button" class="stem-snip-btn" data-stem-sym="${escapeHtml(sn.text)}" title="Chèn nhanh ${escapeHtml(sn.label)}">${escapeHtml(sn.label)}</button>`
+            <button type="button" class="stem-snip-btn" data-stem-sym="${escapeHtml(sn.text)}" title="${escapeHtml(sn.label)}">${escapeHtml(sn.label)}</button>`
             )
             .join('')}
         </div>
-        <div class="stem-hint">Bấm ký hiệu để chèn ngay vào ô đang gõ (Text / Note) hoặc tạo chữ mới.</div>
+        <div class="stem-hint">${escapeHtml(t('stemHint'))}</div>
       `;
 
       bodyEl.querySelectorAll('[data-stem-group]').forEach((btn) => {
@@ -514,24 +522,24 @@ export function createStemPicker(
       <div class="stem-tpl-grid">
         ${FORMULA_TEMPLATES.map(
           (tpl, idx) => `
-          <button type="button" class="stem-tpl-btn" data-stem-tpl="${idx}" title="${escapeHtml(tpl.title)}">${escapeHtml(tpl.label)}</button>`
+          <button type="button" class="stem-tpl-btn" data-stem-tpl="${idx}" title="${escapeHtml(tpl.title)}">${escapeHtml(tpl.labelKey ? t(tpl.labelKey) : tpl.label)}</button>`
         ).join('')}
       </div>
       <div class="stem-ex-row">
-        <span class="stem-ex-label">Mẫu:</span>
+        <span class="stem-ex-label">${escapeHtml(t('stemExamples'))}</span>
         ${FORMULA_EXAMPLES.map(
           (ex, idx) => `
-          <button type="button" class="stem-ex-chip" data-stem-ex="${idx}">${escapeHtml(ex.label)}</button>`
+          <button type="button" class="stem-ex-chip" data-stem-ex="${idx}">${escapeHtml(t(ex.labelKey))}</button>`
         ).join('')}
       </div>
-      <textarea id="stem-formula-input" class="stem-formula-input" rows="2" placeholder="VD: \\frac{-b \\pm \\sqrt{\\Delta}}{2a} hoặc 2\\text{H}_2 + \\text{O}_2 \\xrightarrow{t^\\circ} 2\\text{H}_2\\text{O}" spellcheck="false"></textarea>
+      <textarea id="stem-formula-input" class="stem-formula-input" rows="2" placeholder="${escapeHtml(t('stemFormulaPh'))}" spellcheck="false"></textarea>
       <div class="stem-preview-box" id="stem-formula-preview">
-        <span class="stem-preview-placeholder">Bấm nút mẫu ở trên hoặc nhập công thức...</span>
+        <span class="stem-preview-placeholder">${escapeHtml(t('stemPreviewPh'))}</span>
       </div>
       <div class="stem-formula-foot">
         ${
           showFormulaColor
-            ? `<div class="stem-color-row" role="group" aria-label="Màu công thức">
+            ? `<div class="stem-color-row" role="group" aria-label="Formula color">
                 ${colorPresets
                   .map(
                     (p, idx) => `
@@ -539,10 +547,10 @@ export function createStemPicker(
                   )
                   .join('')}
               </div>`
-            : `<span class="stem-foot-tip">Ctrl+Enter để chèn nhanh</span>`
+            : `<span class="stem-foot-tip">${escapeHtml(t('stemCtrlEnter'))}</span>`
         }
         <button type="button" class="ctrl-btn is-active stem-submit-btn" id="stem-formula-submit">
-          ${editingMeta ? 'Cập nhật công thức' : 'Chèn công thức'}
+          ${escapeHtml(editingMeta ? t('stemUpdateFormula') : t('stemInsertFormula'))}
         </button>
       </div>
     `;
@@ -695,6 +703,10 @@ export function createStemPicker(
     }
   }
 
+  const unsubLang = onLangChange(() => {
+    if (isOpen) renderPanelBody();
+  });
+
   return {
     open,
     close,
@@ -702,6 +714,7 @@ export function createStemPicker(
     isOpen: () => isOpen,
     refreshTheme,
     destroy() {
+      unsubLang();
       clearTimeout(toastTimer);
       document.removeEventListener('focusin', onFocusIn, true);
       panelEl?.remove();

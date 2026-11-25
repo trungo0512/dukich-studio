@@ -1,5 +1,6 @@
 import { escapeHtml, parseInline, stripMarkup } from '../lib/markdown.js';
 import { BRAND_CONFIG } from '../lib/brand.js';
+import { t } from '../lib/i18n.js';
 import { THEMES, applyGrid, applyTheme, getLogoForTheme, getSavedGrid, getSavedTheme } from '../lib/themes.js';
 import { renderSlideContent, renderWireframe } from './layouts.js';
 import { createTeacherTools } from './teacherTools.js';
@@ -349,7 +350,7 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
           <!-- Top Header -->
           <header class="slide-header">
             <div class="slide-header-left">
-              <a class="back-decks-btn" href="./" data-action="back-decks" title="Quay về Mục lục (Esc)">← Decks</a>
+              <a class="back-decks-btn" href="./" data-action="back-decks" title="${escapeHtml(t('backDecksTitle'))}">${escapeHtml(t('backDecks'))}</a>
               <span class="slide-header-num">${pad2(currentIndex)}</span>
               <span class="slide-header-rule" aria-hidden="true"></span>
               <span class="slide-header-title">${escapeHtml(deck.title)}</span>
@@ -386,8 +387,8 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
                     ></button>`
                   ).join('')}
                 </div>
-                <button type="button" class="foot-pill ${gridOn ? 'is-active' : ''}" data-action="toggle-grid" title="Grid Background (G)">G</button>
-                <button type="button" class="foot-pill foot-editor-btn ${slideEditor?.isOpen() ? 'is-active' : ''}" data-action="toggle-editor" title="Slide Studio - Editor / Preview Mode (E)" aria-label="Toggle Slide Studio">
+                <button type="button" class="foot-pill ${gridOn ? 'is-active' : ''}" data-action="toggle-grid" title="${escapeHtml(t('gridBgTitle'))}">G</button>
+                <button type="button" class="foot-pill foot-editor-btn ${slideEditor?.isOpen() ? 'is-active' : ''}" data-action="toggle-editor" title="${escapeHtml(t('slideStudioTitle'))}" aria-label="Toggle Slide Studio">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="3" y="4" width="18" height="16" rx="2.5"></rect>
                     <line x1="9" y1="4" x2="9" y2="20"></line>
@@ -402,7 +403,7 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
 
             <!-- Right: Interactive Teaching Controls & Nav -->
             <div class="footer-right">
-              <button type="button" class="foot-pill ${activeToolMode === 'off' ? 'is-active' : ''}" data-action="hand-tool" title="Hand Tool / Tắt Teacher Tool (V / Esc)">✋</button>
+              <button type="button" class="foot-pill ${activeToolMode === 'off' ? 'is-active' : ''}" data-action="hand-tool" title="${escapeHtml(t('handToolTitle'))}">✋</button>
               <div class="dropup-wrap tools-dropup-wrap">
                 <button type="button" class="foot-pill ${activeToolMode !== 'off' ? 'is-active' : ''}" data-action="toggle-tools" aria-haspopup="menu" aria-expanded="false" title="Teacher Tools (L / P / R / T / H / S)">
                   ✎ ▴

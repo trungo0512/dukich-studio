@@ -2,6 +2,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { escapeHtml } from '../lib/markdown.js';
 import { BRAND_CONFIG } from '../lib/brand.js';
+import { t } from '../lib/i18n.js';
 import { THEMES, applyGrid, applyTheme, getSavedGrid, getSavedTheme } from '../lib/themes.js';
 import { createTeacherTools } from './teacherTools.js';
 import { createTeacherWidgets } from './teacherWidgets.js';
@@ -51,11 +52,11 @@ export function mountPdfPresenter(rootEl, book, { onBackToLauncher }) {
         <div class="pdf-scroll-area" id="pdf-scroll-area">
           <div class="pdf-pages-wrap" id="pdf-pages-wrap">
             <div class="pdf-canvas-host" id="pdf-canvas-host">
-              <div class="pdf-loading" id="pdf-status">Đang mở sách PDF...</div>
+              <div class="pdf-loading" id="pdf-status">${escapeHtml(t('openingDoc'))}</div>
             </div>
           </div>
         </div>
-        <div class="pdf-grid-overlay" id="pdf-grid-overlay" aria-label="Xem toàn bộ trang sách">
+        <div class="pdf-grid-overlay" id="pdf-grid-overlay" aria-label="${escapeHtml(t('gridViewTitle'))}">
           <div class="pdf-grid-6" id="pdf-grid-6"></div>
         </div>
       </div>
@@ -63,7 +64,7 @@ export function mountPdfPresenter(rootEl, book, { onBackToLauncher }) {
       <footer class="slide-footer pdf-footer">
         <!-- Left: Back + Jump-to-page + Book title + Decor (5 Palettes + Grid) -->
         <div class="footer-left pdf-footer-left">
-          <a class="back-decks-btn pdf-back-btn" href="./" data-action="back-decks" title="Quay về Thư viện (Esc)">← Decks</a>
+          <a class="back-decks-btn pdf-back-btn" href="./" data-action="back-decks" title="${escapeHtml(t('backDecksTitle'))}">${escapeHtml(t('backDecks'))}</a>
           <div class="pdf-page-jump">
             <input type="number" class="pdf-page-input" id="pdf-page-input" min="1" value="${currentPage}" aria-label="Trang hiện tại">
             <span class="pdf-page-total">/ <span id="pdf-total-pages">--</span></span>
@@ -95,13 +96,13 @@ export function mountPdfPresenter(rootEl, book, { onBackToLauncher }) {
 
         <!-- Right: Interactive Tools (Hand + GridView + 1P/2P + Zoom + Teacher Tools + Nav) -->
         <div class="footer-right pdf-footer-right">
-          <button type="button" class="foot-pill is-active" data-action="hand-tool" id="btn-hand-tool" title="Hand Tool / Di chuyển (V / Esc)">✋</button>
-          <button type="button" class="foot-pill" data-action="toggle-gridview" id="btn-gridview" title="Xem toàn bộ trang (Grid View 6 cột)">⊞</button>
-          <button type="button" class="foot-pill" data-action="toggle-spread" id="btn-spread" title="Chuyển chế độ 1 trang / 2 trang đôi">1P</button>
+          <button type="button" class="foot-pill is-active" data-action="hand-tool" id="btn-hand-tool" title="${escapeHtml(t('handToolTitle'))}">✋</button>
+          <button type="button" class="foot-pill" data-action="toggle-gridview" id="btn-gridview" title="${escapeHtml(t('gridViewTitle'))}">⊞</button>
+          <button type="button" class="foot-pill" data-action="toggle-spread" id="btn-spread" title="${escapeHtml(t('spreadTitle'))}">1P</button>
           <span class="foot-sep" aria-hidden="true"></span>
-          <button type="button" class="foot-pill" data-action="zoom-out" id="btn-zoom-out" title="Thu nhỏ (-)">−</button>
-          <button type="button" class="foot-pill pdf-zoom-label" data-action="zoom-reset" id="btn-zoom-label" title="Đặt lại vừa khung (0)">100%</button>
-          <button type="button" class="foot-pill" data-action="zoom-in" id="btn-zoom-in" title="Phóng to (+)">+</button>
+          <button type="button" class="foot-pill" data-action="zoom-out" id="btn-zoom-out" title="${escapeHtml(t('zoomOutTitle'))}">−</button>
+          <button type="button" class="foot-pill pdf-zoom-label" data-action="zoom-reset" id="btn-zoom-label" title="${escapeHtml(t('zoomResetTitle'))}">100%</button>
+          <button type="button" class="foot-pill" data-action="zoom-in" id="btn-zoom-in" title="${escapeHtml(t('zoomInTitle'))}">+</button>
           <span class="foot-sep" aria-hidden="true"></span>
           <div class="dropup-wrap tools-dropup-wrap">
             <button type="button" class="foot-pill" data-action="toggle-tools" aria-haspopup="menu" aria-expanded="false" title="Teacher Tools (L / P / R / S)">
@@ -1001,8 +1002,8 @@ export function mountPdfPresenter(rootEl, book, { onBackToLauncher }) {
       if (isDestroyed) return;
       canvasHost.innerHTML = `
         <div class="pdf-error">
-          <strong>Không thể mở file PDF</strong>
-          <p>${escapeHtml(err?.message || 'Kiểm tra lại đường dẫn file sách trên máy.')}</p>
+          <strong>${escapeHtml(t('pdfErrorTitle'))}</strong>
+          <p>${escapeHtml(err?.message || '')}</p>
         </div>
       `;
     });

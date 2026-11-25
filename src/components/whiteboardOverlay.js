@@ -1,4 +1,5 @@
 import { escapeHtml } from '../lib/markdown.js';
+import { onLangChange, t } from '../lib/i18n.js';
 import { fetchAllBoards, formatBoardDate, getAllBoards } from '../lib/boards.js';
 
 // Global singleton state for Whiteboard Overlay on top of Slides / Documents
@@ -101,14 +102,14 @@ export function mountFooterWhiteboardControl(
       data-action="toggle-wb-dropup"
       aria-haspopup="menu"
       aria-expanded="false"
-      title="Whiteboard (mở bảng vẽ ngay trên bài giảng)"
+      title="${escapeHtml(t('wbFooterTitle'))}"
     >
       ${wbIconSvg}<span class="wb-foot-caret">▴</span>
     </button>
-    <div class="dropup-menu wb-dropup-menu" role="menu" aria-label="Danh sách Whiteboard">
+    <div class="dropup-menu wb-dropup-menu" role="menu" aria-label="Whiteboard">
       <div class="dropup-head">
         <span>WHITEBOARD</span>
-        <button type="button" class="wb-dropup-new-btn" data-wb-action="toggle-new">+ New</button>
+        <button type="button" class="wb-dropup-new-btn" data-wb-action="toggle-new">${escapeHtml(t('wbNewBtn'))}</button>
       </div>
       <div class="wb-dropup-body"></div>
     </div>
@@ -128,16 +129,16 @@ export function mountFooterWhiteboardControl(
   function renderBody() {
     if (!bodyEl) return;
     if (newToggleBtn) {
-      newToggleBtn.textContent = creating ? 'Cancel' : '+ New';
+      newToggleBtn.textContent = creating ? t('cancel') : t('wbNewBtn');
     }
 
     const createHtml = creating
       ? `
         <form class="wb-inline-create" id="wb-inline-create-form">
-          <input type="text" name="title" class="wb-inline-input" placeholder="Tên bảng vẽ mới..." maxlength="100" required autocomplete="off">
+          <input type="text" name="title" class="wb-inline-input" placeholder="${escapeHtml(t('wbNewPlaceholder'))}" maxlength="100" required autocomplete="off">
           ${createErr ? `<div class="wb-inline-err">${escapeHtml(createErr)}</div>` : ''}
           <button type="submit" class="ctrl-btn is-active wb-inline-submit" ${createBusy ? 'disabled' : ''}>
-            ${createBusy ? 'Creating...' : 'Create & Open'}
+            ${escapeHtml(createBusy ? t('creating') : t('wbCreateOpen'))}
           </button>
         </form>
       `
@@ -160,7 +161,7 @@ export function mountFooterWhiteboardControl(
               `;
             })
             .join('')
-        : `<div class="wb-dropup-empty">Chưa có bảng vẽ nào. Bấm <strong>+ New</strong> để tạo ngay.</div>`;
+        : `<div class="wb-dropup-empty">${t('wbEmptyDropup')}</div>`;
 
     bodyEl.innerHTML = `${createHtml}<div class="dropup-list">${listHtml}</div>`;
 
@@ -257,6 +258,13 @@ export function mountFooterWhiteboardControl(
     if (open) renderBody();
   };
 
+  const unsubLang = onLangChange(() => {
+    if (destroyed) return;
+    if (triggerBtn) triggerBtn.title = t('wbFooterTitle');
+    if (newToggleBtn) newToggleBtn.textContent = creating ? t('cancel') : t('wbNewBtn');
+    if (open) renderBody();
+  });
+
   document.addEventListener('click', onDocClick);
   stateListeners.add(onStateUpdate);
   syncTriggerState();
@@ -265,6 +273,7 @@ export function mountFooterWhiteboardControl(
     close: () => setOpen(false),
     destroy: () => {
       destroyed = true;
+      unsubLang();
       document.removeEventListener('click', onDocClick);
       stateListeners.delete(onStateUpdate);
     }

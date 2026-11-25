@@ -5,6 +5,7 @@
  */
 
 import { escapeHtml } from '../lib/markdown.js';
+import { onLangChange, t } from '../lib/i18n.js';
 import {
   createVectorArrow,
   createVectorEllipse,
@@ -583,36 +584,38 @@ export function createChartBuilderPicker(
 
   function renderBody() {
     if (!panelEl) return;
+    const headTitle = panelEl.querySelector('.stem-head-title');
+    if (headTitle) headTitle.textContent = t('chartTitle');
     const body = panelEl.querySelector('#chart-body');
     if (!body) return;
 
     body.innerHTML = `
       <div class="stem-chart-tabs" role="tablist">
-        <button type="button" class="stem-subtab ${chartType === 'line' ? 'is-active' : ''}" data-chart-type="line">Line (Đường)</button>
-        <button type="button" class="stem-subtab ${chartType === 'bar' ? 'is-active' : ''}" data-chart-type="bar">Bar (Cột)</button>
-        <button type="button" class="stem-subtab ${chartType === 'pie' ? 'is-active' : ''}" data-chart-type="pie">Pie (Tròn)</button>
+        <button type="button" class="stem-subtab ${chartType === 'line' ? 'is-active' : ''}" data-chart-type="line">${escapeHtml(t('chartTabLine'))}</button>
+        <button type="button" class="stem-subtab ${chartType === 'bar' ? 'is-active' : ''}" data-chart-type="bar">${escapeHtml(t('chartTabBar'))}</button>
+        <button type="button" class="stem-subtab ${chartType === 'pie' ? 'is-active' : ''}" data-chart-type="pie">${escapeHtml(t('chartTabPie'))}</button>
       </div>
 
       <div class="stem-chart-meta-row">
-        <input type="text" id="chart-title" class="stem-fn-input" value="${escapeHtml(title)}" placeholder="Tiêu đề biểu đồ (tùy chọn)">
-        <input type="text" id="chart-unit" class="stem-fn-input stem-unit-input" value="${escapeHtml(unit)}" placeholder="Đơn vị">
+        <input type="text" id="chart-title" class="stem-fn-input" value="${escapeHtml(title)}" placeholder="${escapeHtml(t('chartTitlePh'))}">
+        <input type="text" id="chart-unit" class="stem-fn-input stem-unit-input" value="${escapeHtml(unit)}" placeholder="${escapeHtml(t('chartUnitPh'))}">
       </div>
 
-      <textarea id="chart-csv" class="stem-formula-input stem-csv-input" rows="4" placeholder="Nhãn, Giá trị 1, Giá trị 2..." spellcheck="false"></textarea>
+      <textarea id="chart-csv" class="stem-formula-input stem-csv-input" rows="4" placeholder="${escapeHtml(t('chartCsvPh'))}" spellcheck="false"></textarea>
 
       <div class="stem-geo-preview-wrap is-static">
         <svg id="chart-preview-svg" viewBox="0 0 296 176" width="296" height="176"></svg>
       </div>
 
       <div class="stem-check-row">
-        <label class="stem-check"><input type="checkbox" id="chart-vals" ${showValues ? 'checked' : ''}> Hiện số liệu</label>
-        <label class="stem-check"><input type="checkbox" id="chart-legend" ${showLegend ? 'checked' : ''}> Chú giải</label>
-        ${chartType !== 'pie' ? `<label class="stem-check"><input type="checkbox" id="chart-grid" ${showGrid ? 'checked' : ''}> Lưới ngang</label>` : ''}
+        <label class="stem-check"><input type="checkbox" id="chart-vals" ${showValues ? 'checked' : ''}> ${escapeHtml(t('chartVals'))}</label>
+        <label class="stem-check"><input type="checkbox" id="chart-legend" ${showLegend ? 'checked' : ''}> ${escapeHtml(t('chartLegend'))}</label>
+        ${chartType !== 'pie' ? `<label class="stem-check"><input type="checkbox" id="chart-grid" ${showGrid ? 'checked' : ''}> ${escapeHtml(t('chartGrid'))}</label>` : ''}
       </div>
 
       <div class="stem-formula-foot">
-        <button type="button" class="ctrl-btn stem-reset-btn" id="chart-sample">Dữ liệu mẫu</button>
-        <button type="button" class="ctrl-btn is-active stem-submit-btn" id="chart-insert">Chèn biểu đồ</button>
+        <button type="button" class="ctrl-btn stem-reset-btn" id="chart-sample">${escapeHtml(t('chartSample'))}</button>
+        <button type="button" class="ctrl-btn is-active stem-submit-btn" id="chart-insert">${escapeHtml(t('chartInsert'))}</button>
       </div>
     `;
 
@@ -740,12 +743,17 @@ export function createChartBuilderPicker(
     else open();
   }
 
+  const unsubLang = onLangChange(() => {
+    if (isOpen) renderBody();
+  });
+
   return {
     open,
     close,
     toggle,
     isOpen: () => isOpen,
     destroy() {
+      unsubLang();
       panelEl?.remove();
       panelEl = null;
       isOpen = false;

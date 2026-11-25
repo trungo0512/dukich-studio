@@ -3,6 +3,7 @@ import { BRAND_CONFIG } from '../lib/brand.js';
 import { getCustomRootFolders, getPublicDecks, getRootFolderMeta, getSubfolders } from '../lib/decks.js';
 import { getAllCourseBooks, fetchAllCourseBooks } from '../lib/books.js';
 import { getAllBoards, fetchAllBoards, formatBoardDate } from '../lib/boards.js';
+import { onLangChange, renderLangToggleButton, t, toggleLang } from '../lib/i18n.js';
 import { THEMES, applyGrid, applyTheme, getLogoForTheme, getSavedGrid, getSavedTheme, getThemeInfo } from '../lib/themes.js';
 
 const ITEMS_PER_PAGE = 20; // 5 columns x 4 rows
@@ -220,6 +221,34 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
 
   const FOLDERS = [...builtInRegularFolders, ...customFoldersReindexed, ...toolFolders];
 
+  function resolveToolFolderDisplay(folder) {
+    if (folder.id === 'course-books') {
+      const meta = getRootFolderMeta('course-books');
+      const customTitle = meta?.title || '';
+      const customSub = meta && meta.sub !== '' ? meta.sub : '';
+      return {
+        title: customTitle || t('docsFolderTitle'),
+        sub: customSub || t('docsFolderSub'),
+        unit: t('unitFiles')
+      };
+    }
+    if (folder.id === 'whiteboards') {
+      const meta = getRootFolderMeta('whiteboards');
+      const customTitle = meta?.title || '';
+      const customSub = meta && meta.sub !== '' ? meta.sub : '';
+      return {
+        title: customTitle || t('boardFolderTitle'),
+        sub: customSub || t('boardFolderSub'),
+        unit: t('unitBoards')
+      };
+    }
+    return {
+      title: folder.title,
+      sub: folder.sub,
+      unit: folder.subfolders?.length > 0 ? t('unitGroups') : t('unitDecks')
+    };
+  }
+
   function renderCard(item) {
     return `
       <a class="lib-card is-${item.kind}" href="${item.href}" data-item-kind="${item.kind}" data-item-id="${escapeHtml(item.id)}" title="${escapeHtml(item.title)}">
@@ -228,11 +257,11 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
           <span class="lib-card-top-right">
             ${
               item.isCustomPdf
-                ? `<button type="button" class="lib-card-del" data-delete-ebook="${escapeHtml(item.id)}" data-delete-title="${escapeHtml(item.title)}" title="Xóa tài liệu này">×</button>`
+                ? `<button type="button" class="lib-card-del" data-delete-ebook="${escapeHtml(item.id)}" data-delete-title="${escapeHtml(item.title)}" title="${escapeHtml(t('delDocTitle'))}">×</button>`
                 : item.isBoard
-                  ? `<button type="button" class="lib-card-edit" data-rename-kind="board" data-rename-slug="${escapeHtml(item.id)}" data-rename-title="${escapeHtml(item.title)}" data-rename-sub="${escapeHtml(item.sub || '')}" title="Đổi tên bảng vẽ">✎</button><button type="button" class="lib-card-del" data-delete-board="${escapeHtml(item.id)}" data-delete-title="${escapeHtml(item.title)}" title="Xóa bảng vẽ này">×</button>`
+                  ? `<button type="button" class="lib-card-edit" data-rename-kind="board" data-rename-slug="${escapeHtml(item.id)}" data-rename-title="${escapeHtml(item.title)}" data-rename-sub="${escapeHtml(item.sub || '')}" title="${escapeHtml(t('renameBoardTitle'))}">✎</button><button type="button" class="lib-card-del" data-delete-board="${escapeHtml(item.id)}" data-delete-title="${escapeHtml(item.title)}" title="${escapeHtml(t('delBoardTitle'))}">×</button>`
                   : item.kind === 'slide' && item.relDir
-                    ? `<button type="button" class="lib-card-edit" data-rename-kind="deck" data-rename-reldir="${escapeHtml(item.relDir)}" data-rename-title="${escapeHtml(item.title)}" title="Đổi tên Slide Deck">✎</button><button type="button" class="lib-card-del" data-delete-deck="${escapeHtml(item.relDir)}" data-delete-title="${escapeHtml(item.title)}" title="Xóa Slide Deck này">×</button>`
+                    ? `<button type="button" class="lib-card-edit" data-rename-kind="deck" data-rename-reldir="${escapeHtml(item.relDir)}" data-rename-title="${escapeHtml(item.title)}" title="${escapeHtml(t('renameDeckTitle'))}">✎</button><button type="button" class="lib-card-del" data-delete-deck="${escapeHtml(item.relDir)}" data-delete-title="${escapeHtml(item.title)}" title="${escapeHtml(t('delDeckTitle'))}">×</button>`
                     : ''
             }
             <span class="lib-dots" aria-hidden="true">
@@ -252,8 +281,9 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
 
   function renderFolderTile(folder) {
     const isOpen = openFolder === folder.id;
+    const disp = resolveToolFolderDisplay(folder);
     const countVal = folder.subfolders?.length > 0 ? folder.subfolders.length : folder.items.length;
-    const countLabel = `${String(countVal).padStart(2, '0')} ${folder.unit}`;
+    const countLabel = `${String(countVal).padStart(2, '0')} ${disp.unit}`;
     const extraClasses = [
       isOpen ? 'is-open' : '',
       folder.isToolFolder ? 'is-tool-folder' : '',
@@ -268,7 +298,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
         class="lib-folder-tile ${extraClasses}"
         data-folder-id="${folder.id}"
         aria-expanded="${isOpen}"
-        title="Mở thư mục ${escapeHtml(folder.title)}"
+        title="${escapeHtml(t('openFolderTitle', { name: disp.title }))}"
       >
         <div class="lib-folder-3d" aria-hidden="true">
           <div class="folder-work-5"></div>
@@ -280,8 +310,8 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
           </div>
         </div>
         <div class="lib-folder-meta">
-          <span class="lib-folder-name">${escapeHtml(folder.title)}</span>
-          <span class="lib-folder-sub">${escapeHtml(folder.sub)} · ${escapeHtml(countLabel)}</span>
+          <span class="lib-folder-name">${escapeHtml(disp.title)}</span>
+          <span class="lib-folder-sub">${escapeHtml(disp.sub)} · ${escapeHtml(countLabel)}</span>
         </div>
       </button>
     `;
@@ -289,14 +319,14 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
 
   function renderSubfolderTile(sub) {
     const isOpen = openSubfolder === sub.id;
-    const countLabel = `${String(sub.items.length).padStart(2, '0')} decks`;
+    const countLabel = `${String(sub.items.length).padStart(2, '0')} ${t('unitDecks')}`;
     return `
       <button
         type="button"
         class="lib-folder-tile lib-subfolder-tile ${isOpen ? 'is-open' : ''}"
         data-subfolder-id="${escapeHtml(sub.id)}"
         aria-expanded="${isOpen}"
-        title="Mở nhóm ${escapeHtml(sub.title)}"
+        title="${escapeHtml(t('openSubfolderTitle', { name: sub.title }))}"
       >
         <div class="lib-folder-3d is-sub" aria-hidden="true">
           <div class="folder-work-5"></div>
@@ -315,7 +345,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
     `;
   }
 
-  function renderPaginatedCards(items, currentPage, pageAttr, titleLabel, emptyText = 'Chưa có bài học nào trong thư mục này.') {
+  function renderPaginatedCards(items, currentPage, pageAttr, titleLabel, emptyText = t('emptyFolder')) {
     const totalPages = Math.max(1, Math.ceil(items.length / ITEMS_PER_PAGE));
     const safePage = Math.max(1, Math.min(totalPages, currentPage));
     const startIdx = (safePage - 1) * ITEMS_PER_PAGE;
@@ -333,17 +363,17 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
 
         ${
           totalPages > 1
-            ? `<nav class="lib-pagination" aria-label="Phân trang ${escapeHtml(titleLabel)}">
-                <span class="lib-page-info">Trang <strong>${safePage}</strong> / ${totalPages} (20/trang)</span>
+            ? `<nav class="lib-pagination" aria-label="${escapeHtml(titleLabel)}">
+                <span class="lib-page-info">${t('pageInfo', { p: safePage, t: totalPages })}</span>
                 <div class="lib-page-btns">
-                  <button type="button" class="ctrl-btn" ${pageAttr}="${safePage - 1}" ${safePage <= 1 ? 'disabled style="opacity:0.4;cursor:default;"' : ''}>← Trước</button>
+                  <button type="button" class="ctrl-btn" ${pageAttr}="${safePage - 1}" ${safePage <= 1 ? 'disabled style="opacity:0.4;cursor:default;"' : ''}>${escapeHtml(t('prev'))}</button>
                   ${Array.from({ length: totalPages }, (_, i) => i + 1)
                     .map(
                       (p) => `
                     <button type="button" class="ctrl-btn ${p === safePage ? 'is-active' : ''}" ${pageAttr}="${p}">${p}</button>`
                     )
                     .join('')}
-                  <button type="button" class="ctrl-btn" ${pageAttr}="${safePage + 1}" ${safePage >= totalPages ? 'disabled style="opacity:0.4;cursor:default;"' : ''}>Sau →</button>
+                  <button type="button" class="ctrl-btn" ${pageAttr}="${safePage + 1}" ${safePage >= totalPages ? 'disabled style="opacity:0.4;cursor:default;"' : ''}>${escapeHtml(t('next'))}</button>
                 </div>
               </nav>`
             : ''
@@ -354,6 +384,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
 
   function renderExpandedFolder(folder) {
     if (!folder) return '';
+    const disp = resolveToolFolderDisplay(folder);
 
     // 2-Level Folder (e.g. Lesson Deck -> Subfolders N / V / Adj / Adv -> Lesson Slide Decks)
     if (folder.subfolders && folder.subfolders.length > 0) {
@@ -368,22 +399,22 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
         : null;
 
       return `
-        <section class="lib-section lib-folder-panel" aria-label="${escapeHtml(folder.title)}">
+        <section class="lib-section lib-folder-panel" aria-label="${escapeHtml(disp.title)}">
           <div class="lib-sec-head">
             <div class="lib-sec-head-left">
-              <span class="lib-sec-title">${escapeHtml(folder.num)} · ${escapeHtml(folder.title)}</span>
-              <span class="lib-sec-sub">${escapeHtml(folder.sub)}</span>
+              <span class="lib-sec-title">${escapeHtml(folder.num)} · ${escapeHtml(disp.title)}</span>
+              <span class="lib-sec-sub">${escapeHtml(disp.sub)}</span>
             </div>
             <div class="lib-sec-head-right">
-              <span class="lib-sec-meta">${folder.subfolders.length} NHÓM BÀI HỌC</span>
-              <button type="button" class="ctrl-btn is-active" data-create-deck-folder="${escapeHtml(folder.id)}" data-create-deck-sub="${escapeHtml(activeSub ? activeSub.id : folder.subfolders[0].id)}" title="Tạo Slide Deck mới">+ New Deck</button>
-              <button type="button" class="ctrl-btn" data-rename-kind="folder" data-rename-folder="${escapeHtml(folder.id)}" data-rename-title="${escapeHtml(folder.title)}" data-rename-sub="${escapeHtml(folder.sub)}" title="Đổi tên thư mục">Rename</button>
+              <span class="lib-sec-meta">${escapeHtml(t('subgroupsMeta', { n: folder.subfolders.length }))}</span>
+              <button type="button" class="ctrl-btn is-active" data-create-deck-folder="${escapeHtml(folder.id)}" data-create-deck-sub="${escapeHtml(activeSub ? activeSub.id : folder.subfolders[0].id)}" title="${escapeHtml(t('newDeckTitle'))}">${escapeHtml(t('newDeck'))}</button>
+              <button type="button" class="ctrl-btn" data-rename-kind="folder" data-rename-folder="${escapeHtml(folder.id)}" data-rename-title="${escapeHtml(disp.title)}" data-rename-sub="${escapeHtml(disp.sub)}" title="${escapeHtml(t('rename'))}">${escapeHtml(t('rename'))}</button>
               ${
                 folder.isCustom
-                  ? `<button type="button" class="ctrl-btn ctrl-btn-danger" data-delete-folder="${escapeHtml(folder.id)}" data-delete-parent="" data-delete-title="${escapeHtml(folder.title)}" title="Xóa thư mục này">Delete Folder</button>`
+                  ? `<button type="button" class="ctrl-btn ctrl-btn-danger" data-delete-folder="${escapeHtml(folder.id)}" data-delete-parent="" data-delete-title="${escapeHtml(disp.title)}" title="${escapeHtml(t('deleteFolder'))}">${escapeHtml(t('deleteFolder'))}</button>`
                   : ''
               }
-              <button type="button" class="ctrl-btn" data-action="close-folder" title="Thu gọn thư mục">Thu gọn ▴</button>
+              <button type="button" class="ctrl-btn" data-action="close-folder" title="${escapeHtml(t('collapse'))}">${escapeHtml(t('collapse'))}</button>
             </div>
           </div>
 
@@ -400,11 +431,11 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
                       ${activeSub.sub ? `<span class="lib-sec-sub">${escapeHtml(activeSub.sub)}</span>` : ''}
                     </div>
                     <div class="lib-sec-head-right">
-                      <span class="lib-sec-meta">${activeSub.items.length} BÀI · TRANG ${subCards.safePage}/${subCards.totalPages}</span>
-                      <button type="button" class="ctrl-btn is-active" data-create-deck-folder="${escapeHtml(folder.id)}" data-create-deck-sub="${escapeHtml(activeSub.id)}" title="Tạo Slide Deck mới trong nhóm này">+ New Deck</button>
-                      <button type="button" class="ctrl-btn" data-rename-kind="subfolder" data-rename-parent="${escapeHtml(folder.id)}" data-rename-subfolder="${escapeHtml(activeSub.id)}" data-rename-title="${escapeHtml(activeSub.title)}" data-rename-sub="${escapeHtml(activeSub.sub || '')}" data-rename-code="${escapeHtml(activeSub.code || '')}" title="Đổi tên thư mục con">Rename</button>
-                      <button type="button" class="ctrl-btn ctrl-btn-danger" data-delete-folder="${escapeHtml(activeSub.id)}" data-delete-parent="${escapeHtml(folder.id)}" data-delete-title="${escapeHtml(activeSub.title)}" title="Xóa thư mục con này">Delete Folder</button>
-                      <button type="button" class="ctrl-btn" data-action="close-subfolder" title="Thu gọn nhóm">Đóng ▴</button>
+                      <span class="lib-sec-meta">${escapeHtml(t('decksPageMeta', { n: activeSub.items.length, p: subCards.safePage, t: subCards.totalPages }))}</span>
+                      <button type="button" class="ctrl-btn is-active" data-create-deck-folder="${escapeHtml(folder.id)}" data-create-deck-sub="${escapeHtml(activeSub.id)}" title="${escapeHtml(t('newDeckTitle'))}">${escapeHtml(t('newDeck'))}</button>
+                      <button type="button" class="ctrl-btn" data-rename-kind="subfolder" data-rename-parent="${escapeHtml(folder.id)}" data-rename-subfolder="${escapeHtml(activeSub.id)}" data-rename-title="${escapeHtml(activeSub.title)}" data-rename-sub="${escapeHtml(activeSub.sub || '')}" data-rename-code="${escapeHtml(activeSub.code || '')}" title="${escapeHtml(t('rename'))}">${escapeHtml(t('rename'))}</button>
+                      <button type="button" class="ctrl-btn ctrl-btn-danger" data-delete-folder="${escapeHtml(activeSub.id)}" data-delete-parent="${escapeHtml(folder.id)}" data-delete-title="${escapeHtml(activeSub.title)}" title="${escapeHtml(t('deleteFolder'))}">${escapeHtml(t('deleteFolder'))}</button>
+                      <button type="button" class="ctrl-btn" data-action="close-subfolder" title="${escapeHtml(t('closeGroup'))}">${escapeHtml(t('closeGroup'))}</button>
                     </div>
                   </div>
                   ${subCards.html}
@@ -415,45 +446,42 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
       `;
     }
 
-    const emptyMsg =
-      folder.id === 'whiteboards'
-        ? 'Chưa có bảng vẽ nào. Bấm + New Board để mở bảng vô cực mới.'
-        : 'Chưa có bài học nào trong thư mục này.';
+    const emptyMsg = folder.id === 'whiteboards' ? t('emptyBoards') : t('emptyFolder');
 
     const cards = renderPaginatedCards(
       folder.items,
       folderPages[folder.id] || 1,
       'data-folder-page',
-      folder.title,
+      disp.title,
       emptyMsg
     );
 
     return `
-      <section class="lib-section lib-folder-panel" aria-label="${escapeHtml(folder.title)}">
+      <section class="lib-section lib-folder-panel" aria-label="${escapeHtml(disp.title)}">
         <div class="lib-sec-head">
           <div class="lib-sec-head-left">
-            <span class="lib-sec-title">${escapeHtml(folder.num)} · ${escapeHtml(folder.title)}</span>
-            <span class="lib-sec-sub">${escapeHtml(folder.sub)}</span>
+            <span class="lib-sec-title">${escapeHtml(folder.num)} · ${escapeHtml(disp.title)}</span>
+            <span class="lib-sec-sub">${escapeHtml(disp.sub)}</span>
           </div>
           <div class="lib-sec-head-right">
-            <span class="lib-sec-meta">${folder.items.length} MỤC · TRANG ${cards.safePage}/${cards.totalPages}</span>
+            <span class="lib-sec-meta">${escapeHtml(t('itemsPageMeta', { n: folder.items.length, p: cards.safePage, t: cards.totalPages }))}</span>
             ${
               folder.id === 'course-books'
-                ? `<label class="ctrl-btn is-active pdf-upload-btn ${uploadingDocs ? 'is-busy' : ''}" id="doc-add-label" title="Thêm tài liệu PDF, Word (.docx, .doc) hoặc PowerPoint (.pptx, .ppt) vào Documents">
-                    <span id="doc-add-label-text">${escapeHtml(uploadStatusText || '+ Add Document')}</span>
+                ? `<label class="ctrl-btn is-active pdf-upload-btn ${uploadingDocs ? 'is-busy' : ''}" id="doc-add-label" title="${escapeHtml(t('addDocumentTitle'))}">
+                    <span id="doc-add-label-text">${escapeHtml(uploadStatusText || t('addDocument'))}</span>
                     <input type="file" id="ebook-add-input" accept=".pdf,.docx,.doc,.pptx,.ppt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple hidden ${uploadingDocs ? 'disabled' : ''}>
                   </label>`
                 : folder.id === 'whiteboards'
-                  ? `<button type="button" class="ctrl-btn is-active" data-action="open-create-board" title="Tạo bảng vô cực Whiteboard mới">+ New Board</button>`
-                  : `<button type="button" class="ctrl-btn is-active" data-create-deck-folder="${escapeHtml(folder.id)}" data-create-deck-sub="" title="Tạo Slide Deck mới trong thư mục này">+ New Deck</button>`
+                  ? `<button type="button" class="ctrl-btn is-active" data-action="open-create-board" title="${escapeHtml(t('newBoardTitle'))}">${escapeHtml(t('newBoard'))}</button>`
+                  : `<button type="button" class="ctrl-btn is-active" data-create-deck-folder="${escapeHtml(folder.id)}" data-create-deck-sub="" title="${escapeHtml(t('newDeckTitle'))}">${escapeHtml(t('newDeck'))}</button>`
             }
-            <button type="button" class="ctrl-btn" data-rename-kind="folder" data-rename-folder="${escapeHtml(folder.id)}" data-rename-title="${escapeHtml(folder.title)}" data-rename-sub="${escapeHtml(folder.sub)}" title="Đổi tên thư mục">Rename</button>
+            <button type="button" class="ctrl-btn" data-rename-kind="folder" data-rename-folder="${escapeHtml(folder.id)}" data-rename-title="${escapeHtml(disp.title)}" data-rename-sub="${escapeHtml(disp.sub)}" title="${escapeHtml(t('rename'))}">${escapeHtml(t('rename'))}</button>
             ${
               folder.isCustom
-                ? `<button type="button" class="ctrl-btn ctrl-btn-danger" data-delete-folder="${escapeHtml(folder.id)}" data-delete-parent="" data-delete-title="${escapeHtml(folder.title)}" title="Xóa thư mục này">Delete Folder</button>`
+                ? `<button type="button" class="ctrl-btn ctrl-btn-danger" data-delete-folder="${escapeHtml(folder.id)}" data-delete-parent="" data-delete-title="${escapeHtml(disp.title)}" title="${escapeHtml(t('deleteFolder'))}">${escapeHtml(t('deleteFolder'))}</button>`
                 : ''
             }
-            <button type="button" class="ctrl-btn" data-action="close-folder" title="Thu gọn thư mục">Thu gọn ▴</button>
+            <button type="button" class="ctrl-btn" data-action="close-folder" title="${escapeHtml(t('collapse'))}">${escapeHtml(t('collapse'))}</button>
           </div>
         </div>
         ${cards.html}
@@ -469,39 +497,39 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
       <div class="cf-modal-backdrop" data-action="close-create-modal">
         <div class="cf-modal" role="dialog" aria-modal="true" aria-labelledby="cf-modal-title">
           <div class="cf-modal-head">
-            <h3 id="cf-modal-title">Create New Folder</h3>
-            <button type="button" class="cf-close-btn" data-action="close-create-modal" aria-label="Đóng">×</button>
+            <h3 id="cf-modal-title">${escapeHtml(t('modalCreateFolder'))}</h3>
+            <button type="button" class="cf-close-btn" data-action="close-create-modal" aria-label="${escapeHtml(t('close'))}">×</button>
           </div>
           <form id="cf-create-form" class="cf-form">
             <label class="cf-field">
-              <span>Vị trí (Location)</span>
+              <span>${escapeHtml(t('fieldLocation'))}</span>
               <select name="parentFolder" id="cf-parent-select">
-                <option value="" ${defaultParent === '' ? 'selected' : ''}>Thư mục gốc (Top-level Folder)</option>
+                <option value="" ${defaultParent === '' ? 'selected' : ''}>${escapeHtml(t('locRoot'))}</option>
                 ${parentChoices
                   .map(
                     (f) =>
-                      `<option value="${escapeHtml(f.id)}" ${defaultParent === f.id ? 'selected' : ''}>Bên trong ${escapeHtml(f.num)} · ${escapeHtml(f.title)}</option>`
+                      `<option value="${escapeHtml(f.id)}" ${defaultParent === f.id ? 'selected' : ''}>${escapeHtml(t('locInside', { num: f.num, title: f.title }))}</option>`
                   )
                   .join('')}
               </select>
             </label>
             <label class="cf-field">
-              <span>Tên thư mục (Folder Name) *</span>
-              <input type="text" name="title" id="cf-title-input" placeholder="VD: Bài giảng Tuần 1 hoặc Chuyên đề" required maxlength="60" autocomplete="off">
+              <span>${escapeHtml(t('fieldFolderName'))}</span>
+              <input type="text" name="title" id="cf-title-input" placeholder="${escapeHtml(t('phFolderName'))}" required maxlength="60" autocomplete="off">
             </label>
             <label class="cf-field">
-              <span>Mô tả ngắn (Subtitle)</span>
-              <input type="text" name="sub" id="cf-sub-input" placeholder="VD: Bộ slide và tài liệu thực hành" maxlength="80" autocomplete="off">
+              <span>${escapeHtml(t('fieldSub'))}</span>
+              <input type="text" name="sub" id="cf-sub-input" placeholder="${escapeHtml(t('phFolderSub'))}" maxlength="80" autocomplete="off">
             </label>
             <label class="cf-field cf-code-row ${defaultParent ? '' : 'is-hidden'}" id="cf-code-row">
-              <span>Mã nhãn thư mục con (Code - tùy chọn)</span>
-              <input type="text" name="code" id="cf-code-input" placeholder="VD: PREP (tự tạo nếu để trống)" maxlength="8" autocomplete="off">
+              <span>${escapeHtml(t('fieldCode'))}</span>
+              <input type="text" name="code" id="cf-code-input" placeholder="${escapeHtml(t('phCode'))}" maxlength="8" autocomplete="off">
             </label>
             ${createError ? `<div class="cf-error">${escapeHtml(createError)}</div>` : ''}
             <div class="cf-actions">
-              <button type="button" class="ctrl-btn" data-action="close-create-modal">Cancel</button>
+              <button type="button" class="ctrl-btn" data-action="close-create-modal">${escapeHtml(t('cancel'))}</button>
               <button type="submit" class="ctrl-btn is-active" ${createBusy ? 'disabled' : ''}>
-                ${createBusy ? 'Creating...' : 'Create Folder'}
+                ${escapeHtml(createBusy ? t('creating') : t('btnCreateFolder'))}
               </button>
             </div>
           </form>
@@ -515,23 +543,23 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
     const isSub = renameTarget.kind === 'subfolder';
     const isDeck = renameTarget.kind === 'deck';
     const isBoard = renameTarget.kind === 'board';
-    const heading = isBoard ? 'Rename Whiteboard' : isDeck ? 'Rename Slide Deck' : isSub ? 'Rename Subfolder' : 'Rename Folder';
+    const heading = isBoard ? t('modalRenameBoard') : isDeck ? t('modalRenameDeck') : isSub ? t('modalRenameSub') : t('modalRenameFolder');
     return `
       <div class="cf-modal-backdrop" data-action="close-rename-modal">
         <div class="cf-modal" role="dialog" aria-modal="true" aria-labelledby="cf-rename-title">
           <div class="cf-modal-head">
-            <h3 id="cf-rename-title">${heading}</h3>
-            <button type="button" class="cf-close-btn" data-action="close-rename-modal" aria-label="Đóng">×</button>
+            <h3 id="cf-rename-title">${escapeHtml(heading)}</h3>
+            <button type="button" class="cf-close-btn" data-action="close-rename-modal" aria-label="${escapeHtml(t('close'))}">×</button>
           </div>
           <form id="cf-rename-form" class="cf-form">
             <label class="cf-field">
-              <span>Tên mới (Title) *</span>
+              <span>${escapeHtml(t('fieldNewTitle'))}</span>
               <input type="text" name="title" id="cf-rename-input" value="${escapeHtml(renameTarget.title || '')}" required maxlength="100" autocomplete="off">
             </label>
             ${
               !isDeck
                 ? `<label class="cf-field">
-                    <span>Mô tả ngắn (Subtitle)</span>
+                    <span>${escapeHtml(t('fieldSub'))}</span>
                     <input type="text" name="sub" value="${escapeHtml(renameTarget.sub || '')}" maxlength="80" autocomplete="off">
                   </label>`
                 : ''
@@ -539,16 +567,16 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
             ${
               isSub
                 ? `<label class="cf-field">
-                    <span>Mã nhãn (Code)</span>
+                    <span>${escapeHtml(t('fieldCodeShort'))}</span>
                     <input type="text" name="code" value="${escapeHtml(renameTarget.code || '')}" maxlength="8" autocomplete="off">
                   </label>`
                 : ''
             }
             ${renameError ? `<div class="cf-error">${escapeHtml(renameError)}</div>` : ''}
             <div class="cf-actions">
-              <button type="button" class="ctrl-btn" data-action="close-rename-modal">Cancel</button>
+              <button type="button" class="ctrl-btn" data-action="close-rename-modal">${escapeHtml(t('cancel'))}</button>
               <button type="submit" class="ctrl-btn is-active" ${renameBusy ? 'disabled' : ''}>
-                ${renameBusy ? 'Saving...' : 'Save'}
+                ${escapeHtml(renameBusy ? t('saving') : t('save'))}
               </button>
             </div>
           </form>
@@ -566,18 +594,18 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
       <div class="cf-modal-backdrop" data-action="close-create-deck-modal">
         <div class="cf-modal" role="dialog" aria-modal="true" aria-labelledby="cf-deck-modal-title">
           <div class="cf-modal-head">
-            <h3 id="cf-deck-modal-title">Create New Slide Deck</h3>
-            <button type="button" class="cf-close-btn" data-action="close-create-deck-modal" aria-label="Đóng">×</button>
+            <h3 id="cf-deck-modal-title">${escapeHtml(t('modalCreateDeck'))}</h3>
+            <button type="button" class="cf-close-btn" data-action="close-create-deck-modal" aria-label="${escapeHtml(t('close'))}">×</button>
           </div>
           <form id="cf-create-deck-form" class="cf-form">
             <label class="cf-field">
-              <span>Thư mục (Folder)</span>
+              <span>${escapeHtml(t('fieldFolder'))}</span>
               <input type="text" value="${escapeHtml(folderObj.num)} · ${escapeHtml(folderObj.title)}" disabled>
             </label>
             ${
               hasSubs
                 ? `<label class="cf-field">
-                    <span>Nhóm con (Subfolder)</span>
+                    <span>${escapeHtml(t('fieldSubfolder'))}</span>
                     <select name="subfolderId">
                       ${folderObj.subfolders
                         .map(
@@ -590,18 +618,18 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
                 : ''
             }
             <label class="cf-field">
-              <span>Tên bài trình chiếu (Deck Title) *</span>
-              <input type="text" name="title" id="cf-deck-title-input" placeholder="VD: Articles &amp; Determiners" required maxlength="100" autocomplete="off">
+              <span>${escapeHtml(t('fieldDeckTitle'))}</span>
+              <input type="text" name="title" id="cf-deck-title-input" placeholder="${escapeHtml(t('phDeckTitle'))}" required maxlength="100" autocomplete="off">
             </label>
             <label class="cf-field">
-              <span>Mô tả phụ trên bìa (Subtitle - tùy chọn)</span>
-              <input type="text" name="subtitle" placeholder="VD: Cách dùng a, an, the và zero article trong câu học thuật" maxlength="160" autocomplete="off">
+              <span>${escapeHtml(t('fieldDeckSub'))}</span>
+              <input type="text" name="subtitle" placeholder="${escapeHtml(t('phDeckSub'))}" maxlength="160" autocomplete="off">
             </label>
             ${createDeckError ? `<div class="cf-error">${escapeHtml(createDeckError)}</div>` : ''}
             <div class="cf-actions">
-              <button type="button" class="ctrl-btn" data-action="close-create-deck-modal">Cancel</button>
+              <button type="button" class="ctrl-btn" data-action="close-create-deck-modal">${escapeHtml(t('cancel'))}</button>
               <button type="submit" class="ctrl-btn is-active" ${createDeckBusy ? 'disabled' : ''}>
-                ${createDeckBusy ? 'Creating...' : 'Create & Open Studio'}
+                ${escapeHtml(createDeckBusy ? t('creating') : t('btnCreateDeck'))}
               </button>
             </div>
           </form>
@@ -616,23 +644,23 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
       <div class="cf-modal-backdrop" data-action="close-create-board-modal">
         <div class="cf-modal" role="dialog" aria-modal="true" aria-labelledby="cf-board-modal-title">
           <div class="cf-modal-head">
-            <h3 id="cf-board-modal-title">Create New Whiteboard</h3>
-            <button type="button" class="cf-close-btn" data-action="close-create-board-modal" aria-label="Đóng">×</button>
+            <h3 id="cf-board-modal-title">${escapeHtml(t('modalCreateBoard'))}</h3>
+            <button type="button" class="cf-close-btn" data-action="close-create-board-modal" aria-label="${escapeHtml(t('close'))}">×</button>
           </div>
           <form id="cf-create-board-form" class="cf-form">
             <label class="cf-field">
-              <span>Tên bảng vẽ (Board Title) *</span>
-              <input type="text" name="title" id="cf-board-title-input" placeholder="VD: Sơ đồ tư duy Bài 01" required maxlength="100" autocomplete="off">
+              <span>${escapeHtml(t('fieldBoardTitle'))}</span>
+              <input type="text" name="title" id="cf-board-title-input" placeholder="${escapeHtml(t('phBoardTitle'))}" required maxlength="100" autocomplete="off">
             </label>
             <label class="cf-field">
-              <span>Ghi chú ngắn (Subtitle - tùy chọn)</span>
-              <input type="text" name="subtitle" placeholder="VD: Lớp buổi tối - Tuần 04" maxlength="100" autocomplete="off">
+              <span>${escapeHtml(t('fieldBoardSub'))}</span>
+              <input type="text" name="subtitle" placeholder="${escapeHtml(t('phBoardSub'))}" maxlength="100" autocomplete="off">
             </label>
             ${createBoardError ? `<div class="cf-error">${escapeHtml(createBoardError)}</div>` : ''}
             <div class="cf-actions">
-              <button type="button" class="ctrl-btn" data-action="close-create-board-modal">Cancel</button>
+              <button type="button" class="ctrl-btn" data-action="close-create-board-modal">${escapeHtml(t('cancel'))}</button>
               <button type="submit" class="ctrl-btn is-active" ${createBoardBusy ? 'disabled' : ''}>
-                ${createBoardBusy ? 'Creating...' : 'Create & Open Board'}
+                ${escapeHtml(createBoardBusy ? t('creating') : t('btnCreateBoard'))}
               </button>
             </div>
           </form>
@@ -642,6 +670,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
   }
 
   function render() {
+    document.title = `${t('launcherTitle')} - ${BRAND_CONFIG.pageTitleSuffix}`;
     const logoUrl = getLogoForTheme(activeTheme);
     const activeFolderObj = FOLDERS.find((f) => f.id === openFolder) || null;
 
@@ -652,26 +681,27 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
             <div class="launcher-meta-left">
               <img class="launcher-logo" src="${logoUrl}" alt="${escapeHtml(BRAND_CONFIG.name)}">
               <span class="launcher-meta-rule" aria-hidden="true"></span>
-              <span>${escapeHtml(BRAND_CONFIG.name.toUpperCase())} · ${escapeHtml(BRAND_CONFIG.subtitle)}</span>
+              <span>${escapeHtml(BRAND_CONFIG.name.toUpperCase())} · ${escapeHtml(t('launcherMeta'))}</span>
             </div>
             <div class="launcher-controls">
+              ${renderLangToggleButton({ id: 'launcher-lang-btn' })}
               <button
                 type="button"
                 class="ctrl-btn ctrl-btn-icon ${gridOn ? 'is-active' : ''}"
                 data-action="toggle-grid"
-                title="Grid Background"
+                title="${escapeHtml(t('gridBgTitle'))}"
                 aria-label="Grid Background"
               >G</button>
-              <div class="theme-swatch-row" role="group" aria-label="Chọn bảng màu">
+              <div class="theme-swatch-row" role="group" aria-label="Palette">
                 ${THEMES.map(
-                  (t) => `
+                  (tItem) => `
                   <button
                     type="button"
-                    class="theme-swatch-btn ${activeTheme === t.id ? 'is-active' : ''}"
-                    data-theme="${t.id}"
-                    style="--sw-accent: ${t.accent}; --sw-paper: ${t.paper};"
-                    title="${escapeHtml(t.label)}"
-                    aria-label="${escapeHtml(t.label)}"
+                    class="theme-swatch-btn ${activeTheme === tItem.id ? 'is-active' : ''}"
+                    data-theme="${tItem.id}"
+                    style="--sw-accent: ${tItem.accent}; --sw-paper: ${tItem.paper};"
+                    title="${escapeHtml(tItem.label)}"
+                    aria-label="${escapeHtml(tItem.label)}"
                   ></button>`
                 ).join('')}
               </div>
@@ -680,21 +710,21 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
 
           <div class="launcher-bar">
             <div class="launcher-bar-hint">
-              Tạo mới và quản lý thư mục. Trình chiếu, giảng dạy, và tương tác với đa công cụ hỗ trợ
+              ${escapeHtml(t('launcherHint'))}
             </div>
             <div class="launcher-bar-right">
-              <label class="ctrl-btn pdf-upload-btn" title="Mở nhanh file PDF, Word (.docx, .doc) hoặc PowerPoint (.pptx, .ppt) từ máy tính">
-                + Open Document
+              <label class="ctrl-btn pdf-upload-btn" title="${escapeHtml(t('openDocumentTitle'))}">
+                ${escapeHtml(t('openDocument'))}
                 <input type="file" id="local-pdf-input" accept=".pdf,.docx,.doc,.pptx,.ppt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation" hidden>
               </label>
-              <button type="button" class="ctrl-btn" data-action="open-create-folder" title="Create a new folder in local decks/">
-                + Create New Folder
+              <button type="button" class="ctrl-btn" data-action="open-create-folder" title="${escapeHtml(t('createNewFolderTitle'))}">
+                ${escapeHtml(t('createNewFolder'))}
               </button>
             </div>
           </div>
         </header>
 
-        <section class="lib-folders-stage ${activeFolderObj ? 'has-open' : ''}" aria-label="Thư mục tài liệu">
+        <section class="lib-folders-stage ${activeFolderObj ? 'has-open' : ''}" aria-label="Folders">
           <div class="lib-folders-row">
             ${FOLDERS.map(renderFolderTile).join('')}
           </div>
@@ -702,42 +732,42 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
 
         ${renderExpandedFolder(activeFolderObj)}
 
-        <footer class="lib-shortcuts-ref" aria-label="Bảng phím tắt nhanh">
+        <footer class="lib-shortcuts-ref" aria-label="${escapeHtml(t('shortcutsHead'))}">
           <div class="lib-shortcuts-head">
-            <span>PHÍM TẮT NHANH · SLIDE &amp; PDF</span>
-            <a class="ctrl-btn" href="/brandsheet.html" target="_blank" rel="noopener">Brandsheet ↗</a>
+            <span>${escapeHtml(t('shortcutsHead'))}</span>
+            <a class="ctrl-btn" href="/brandsheet.html" target="_blank" rel="noopener">${escapeHtml(t('customiseStyle'))}</a>
           </div>
           <div class="lib-shortcuts-grid">
             <div class="lib-sc-col">
-              <div class="lib-sc-group">Điều hướng &amp; Hiển thị</div>
-              <div class="lib-sc-row"><kbd>← / →</kbd><span>Chuyển slide hoặc trang PDF</span></div>
-              <div class="lib-sc-row"><kbd>Home / End</kbd><span>Về đầu hoặc tới trang cuối</span></div>
-              <div class="lib-sc-row"><kbd>+ / − / 0</kbd><span>Phóng to, thu nhỏ, về 100% (PDF)</span></div>
-              <div class="lib-sc-row"><kbd>G</kbd><span>Bật / tắt Grid Background</span></div>
-              <div class="lib-sc-row"><kbd>E</kbd><span>Bật / tắt Floating Slide Editor (Slide Deck)</span></div>
-              <div class="lib-sc-row"><kbd>F</kbd><span>Bật / tắt toàn màn hình (Present Mode)</span></div>
+              <div class="lib-sc-group">${escapeHtml(t('scGroupNav'))}</div>
+              <div class="lib-sc-row"><kbd>← / →</kbd><span>${escapeHtml(t('scNavArrows'))}</span></div>
+              <div class="lib-sc-row"><kbd>Home / End</kbd><span>${escapeHtml(t('scNavHomeEnd'))}</span></div>
+              <div class="lib-sc-row"><kbd>+ / − / 0</kbd><span>${escapeHtml(t('scNavZoom'))}</span></div>
+              <div class="lib-sc-row"><kbd>G</kbd><span>${escapeHtml(t('scNavGrid'))}</span></div>
+              <div class="lib-sc-row"><kbd>E</kbd><span>${escapeHtml(t('scNavEditor'))}</span></div>
+              <div class="lib-sc-row"><kbd>F</kbd><span>${escapeHtml(t('scNavFs'))}</span></div>
             </div>
 
             <div class="lib-sc-col">
-              <div class="lib-sc-group">Teacher Tools</div>
-              <div class="lib-sc-row"><kbd>V</kbd><span>Hand Tool (chọn, kéo &amp; xóa phần tử)</span></div>
-              <div class="lib-sc-row"><kbd>L</kbd><span>Laser Pointer (Techno Particle)</span></div>
-              <div class="lib-sc-row"><kbd>P</kbd><span>Pen Draw (kéo di chuyển ở Hand)</span></div>
-              <div class="lib-sc-row"><kbd>R</kbd><span>Rectangle Box (kéo di chuyển ở Hand)</span></div>
-              <div class="lib-sc-row"><kbd>T</kbd><span>Text Note (kéo 4 góc đổi cỡ chữ)</span></div>
-              <div class="lib-sc-row"><kbd>H</kbd><span>Highlighter (quét chữ / bôi PDF)</span></div>
-              <div class="lib-sc-row"><kbd>S</kbd><span>Spotlight vòng sáng tập trung</span></div>
+              <div class="lib-sc-group">${escapeHtml(t('scGroupTools'))}</div>
+              <div class="lib-sc-row"><kbd>V</kbd><span>${escapeHtml(t('scToolHand'))}</span></div>
+              <div class="lib-sc-row"><kbd>L</kbd><span>${escapeHtml(t('scToolLaser'))}</span></div>
+              <div class="lib-sc-row"><kbd>P</kbd><span>${escapeHtml(t('scToolPen'))}</span></div>
+              <div class="lib-sc-row"><kbd>R</kbd><span>${escapeHtml(t('scToolRect'))}</span></div>
+              <div class="lib-sc-row"><kbd>T</kbd><span>${escapeHtml(t('scToolText'))}</span></div>
+              <div class="lib-sc-row"><kbd>H</kbd><span>${escapeHtml(t('scToolHl'))}</span></div>
+              <div class="lib-sc-row"><kbd>S</kbd><span>${escapeHtml(t('scToolSpot'))}</span></div>
             </div>
 
             <div class="lib-sc-col">
-              <div class="lib-sc-group">Widgets &amp; Thao tác</div>
-              <div class="lib-sc-row"><kbd>N</kbd><span>Tạo Floating Note Box (Note 1, 2...)</span></div>
-              <div class="lib-sc-row"><kbd>K</kbd><span>Bảng ký hiệu &amp; công thức STEM (Toán / Hóa / Lý)</span></div>
-              <div class="lib-sc-row"><kbd>M</kbd><span>Mở Mini Timer (tự tắt khi đổi trang)</span></div>
-              <div class="lib-sc-row"><kbd>Ctrl + Cuộn</kbd><span>Đổi cỡ Pen / Box / Text · Zoom PDF</span></div>
-              <div class="lib-sc-row"><kbd>Ctrl + Z</kbd><span>Hoàn tác nét vẽ, chữ, highlight</span></div>
-              <div class="lib-sc-row"><kbd>C</kbd><span>Xóa toàn bộ ghi chú trên trang</span></div>
-              <div class="lib-sc-row"><kbd>Esc</kbd><span>Tắt tool / Đóng menu / Về Thư viện</span></div>
+              <div class="lib-sc-group">${escapeHtml(t('scGroupWidgets'))}</div>
+              <div class="lib-sc-row"><kbd>N</kbd><span>${escapeHtml(t('scWidNote'))}</span></div>
+              <div class="lib-sc-row"><kbd>K</kbd><span>${escapeHtml(t('scWidStem'))}</span></div>
+              <div class="lib-sc-row"><kbd>M</kbd><span>${escapeHtml(t('scWidTimer'))}</span></div>
+              <div class="lib-sc-row"><kbd>Ctrl + Scroll</kbd><span>${escapeHtml(t('scWidWheel'))}</span></div>
+              <div class="lib-sc-row"><kbd>Ctrl + Z</kbd><span>${escapeHtml(t('scWidUndo'))}</span></div>
+              <div class="lib-sc-row"><kbd>C</kbd><span>${escapeHtml(t('scWidClear'))}</span></div>
+              <div class="lib-sc-row"><kbd>Esc</kbd><span>${escapeHtml(t('scWidEsc'))}</span></div>
             </div>
           </div>
         </footer>
@@ -747,6 +777,10 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
       ${renderCreateDeckModal()}
       ${renderCreateBoardModal()}
     `;
+
+    rootEl.querySelector('[data-action="toggle-lang"]')?.addEventListener('click', () => {
+      toggleLang();
+    });
 
     rootEl.querySelectorAll('[data-theme]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -838,7 +872,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
           const file = files[i];
           const isOffice = /\.(docx|doc|pptx|ppt)$/i.test(file.name);
           const progressSuffix = files.length > 1 ? ` (${i + 1}/${files.length})` : '';
-          uploadStatusText = `${isOffice ? 'Converting' : 'Uploading'}${progressSuffix}...`;
+          uploadStatusText = `${isOffice ? t('converting') : t('uploading')}${progressSuffix}...`;
           const labelText = rootEl.querySelector('#doc-add-label-text');
           if (labelText) labelText.textContent = uploadStatusText;
           const resp = await fetch('/@api/documents/add', {
@@ -922,7 +956,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
       const code = String(fd.get('code') || '').trim();
 
       if (!title) {
-        renameError = 'Vui lòng nhập tên mới.';
+        renameError = t('errEnterTitle');
         render();
         return;
       }
@@ -963,7 +997,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
         window.location.reload();
       } catch {
         renameBusy = false;
-        renameError = 'Lỗi kết nối localhost dev server.';
+        renameError = t('serverError');
         render();
       }
     });
@@ -974,7 +1008,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
         e.stopPropagation();
         const relDir = btn.dataset.deleteDeck;
         const title = btn.dataset.deleteTitle || relDir;
-        if (!window.confirm(`Xóa hẳn Slide Deck "${title}" khỏi ứng dụng? Hành động này không thể hoàn tác.`)) {
+        if (!window.confirm(t('confirmDeleteDeck', { title }))) {
           return;
         }
         try {
@@ -990,7 +1024,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
           }
           window.location.reload();
         } catch {
-          window.alert('Lỗi kết nối localhost dev server.');
+          window.alert(t('serverError'));
         }
       });
     });
@@ -1001,7 +1035,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
         e.stopPropagation();
         const slug = btn.dataset.deleteBoard;
         const title = btn.dataset.deleteTitle || slug;
-        if (!window.confirm(`Xóa bảng vẽ "${title}" khỏi Whiteboard? Hành động này không thể hoàn tác.`)) return;
+        if (!window.confirm(t('confirmDeleteBoard', { title }))) return;
         try {
           const resp = await fetch('/@api/boards/delete', {
             method: 'POST',
@@ -1015,7 +1049,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
           }
           window.location.reload();
         } catch {
-          window.alert('Lỗi kết nối localhost dev server.');
+          window.alert(t('serverError'));
         }
       });
     });
@@ -1045,7 +1079,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
       const title = String(fd.get('title') || '').trim();
       const subtitle = String(fd.get('subtitle') || '').trim();
       if (!title) {
-        createBoardError = 'Vui lòng nhập tên bảng vẽ.';
+        createBoardError = t('errEnterBoard');
         render();
         return;
       }
@@ -1070,7 +1104,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
         window.location.href = `${window.location.pathname}?board=${encodeURIComponent(data.slug)}`;
       } catch {
         createBoardBusy = false;
-        createBoardError = 'Lỗi kết nối localhost dev server.';
+        createBoardError = t('serverError');
         render();
       }
     });
@@ -1081,7 +1115,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
         e.stopPropagation();
         const id = btn.dataset.deleteEbook;
         const title = btn.dataset.deleteTitle || id;
-        if (!window.confirm(`Xóa tài liệu "${title}" khỏi thư mục Documents?`)) return;
+        if (!window.confirm(t('confirmDeleteDoc', { title }))) return;
         try {
           const resp = await fetch('/@api/documents/delete', {
             method: 'POST',
@@ -1102,7 +1136,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
             render();
           }
         } catch {
-          window.alert('Lỗi kết nối localhost dev server.');
+          window.alert(t('serverError'));
         }
       });
     });
@@ -1112,7 +1146,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
         const folderId = btn.dataset.deleteFolder;
         const parentFolder = btn.dataset.deleteParent || '';
         const title = btn.dataset.deleteTitle || folderId;
-        if (!window.confirm(`Xóa thư mục "${title}" và toàn bộ nội dung bên trong? Hành động này không thể hoàn tác.`)) {
+        if (!window.confirm(t('confirmDeleteFolder', { title }))) {
           return;
         }
         try {
@@ -1128,7 +1162,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
           }
           window.location.reload();
         } catch {
-          window.alert('Lỗi kết nối localhost dev server.');
+          window.alert(t('serverError'));
         }
       });
     });
@@ -1168,7 +1202,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
       const code = String(fd.get('code') || '').trim();
 
       if (!title) {
-        createError = 'Vui lòng nhập tên thư mục.';
+        createError = t('errEnterFolder');
         render();
         return;
       }
@@ -1195,7 +1229,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
         window.location.reload();
       } catch (err) {
         createBusy = false;
-        createError = 'Lỗi kết nối localhost dev server.';
+        createError = t('serverError');
         render();
       }
     });
@@ -1236,7 +1270,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
       const subfolderId = String(fd.get('subfolderId') ?? createDeckTarget.subfolderId ?? '').trim();
 
       if (!title) {
-        createDeckError = 'Vui lòng nhập tên Slide Deck.';
+        createDeckError = t('errEnterDeck');
         render();
         return;
       }
@@ -1271,7 +1305,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
         window.location.href = `${window.location.pathname}?deck=${encodeURIComponent(data.slug)}#1`;
       } catch {
         createDeckBusy = false;
-        createDeckError = 'Lỗi kết nối localhost dev server.';
+        createDeckError = t('serverError');
         render();
       }
     });
@@ -1298,7 +1332,12 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
     }
   });
 
+  const unsubLang = onLangChange(() => {
+    if (!unmounted) render();
+  });
+
   return function unmountLauncher() {
     unmounted = true;
+    unsubLang();
   };
 }

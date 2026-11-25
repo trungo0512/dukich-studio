@@ -5,6 +5,7 @@
  */
 
 import { escapeHtml } from '../lib/markdown.js';
+import { onLangChange, t } from '../lib/i18n.js';
 import {
   createVectorArrow,
   createVectorEllipse,
@@ -16,14 +17,14 @@ import {
 } from '../lib/excalidrawVector.js';
 
 const SOLIDS = [
-  { id: 'cube', label: 'Lập phương', defaultYaw: -28, defaultPitch: 20 },
-  { id: 'pyramid4', label: 'Chóp tứ giác', defaultYaw: -26, defaultPitch: 20 },
-  { id: 'pyramid3', label: 'Tứ diện', defaultYaw: -24, defaultPitch: 20 },
-  { id: 'prism3', label: 'Lăng trụ', defaultYaw: -26, defaultPitch: 20 },
-  { id: 'cylinder', label: 'Hình trụ', defaultYaw: 0, defaultPitch: 22 },
-  { id: 'cone', label: 'Hình nón', defaultYaw: 0, defaultPitch: 22 },
-  { id: 'sphere', label: 'Hình cầu', defaultYaw: 0, defaultPitch: 20 },
-  { id: 'oxyz', label: 'Hệ Oxyz', defaultYaw: -34, defaultPitch: 20 }
+  { id: 'cube', labelKey: 'geoCube', defaultYaw: -28, defaultPitch: 20 },
+  { id: 'pyramid4', labelKey: 'geoPyr4', defaultYaw: -26, defaultPitch: 20 },
+  { id: 'pyramid3', labelKey: 'geoPyr3', defaultYaw: -24, defaultPitch: 20 },
+  { id: 'prism3', labelKey: 'geoPrism3', defaultYaw: -26, defaultPitch: 20 },
+  { id: 'cylinder', labelKey: 'geoCyl', defaultYaw: 0, defaultPitch: 22 },
+  { id: 'cone', labelKey: 'geoCone', defaultYaw: 0, defaultPitch: 22 },
+  { id: 'sphere', labelKey: 'geoSphere', defaultYaw: 0, defaultPitch: 20 },
+  { id: 'oxyz', labelKey: 'geoOxyz', defaultYaw: -34, defaultPitch: 20 }
 ];
 
 function rotPoint([x, y, z], yawDeg, pitchDeg) {
@@ -495,6 +496,8 @@ export function createGeometry3dPicker(
 
   function renderBody() {
     if (!panelEl) return;
+    const headTitle = panelEl.querySelector('.stem-head-title');
+    if (headTitle) headTitle.textContent = t('geoTitle');
     const body = panelEl.querySelector('#geo3d-body');
     if (!body) return;
 
@@ -503,38 +506,38 @@ export function createGeometry3dPicker(
         ${SOLIDS.map(
           (s) => `
           <button type="button" class="stem-solid-btn ${s.id === activeKind ? 'is-active' : ''}" data-geo-kind="${s.id}">
-            ${escapeHtml(s.label)}
+            ${escapeHtml(t(s.labelKey))}
           </button>`
         ).join('')}
       </div>
 
-      <div class="stem-geo-preview-wrap" id="geo3d-preview-wrap" title="Kéo chuột để xoay góc nhìn 3D">
+      <div class="stem-geo-preview-wrap" id="geo3d-preview-wrap" title="${escapeHtml(t('geoDragTitle'))}">
         <svg id="geo3d-preview-svg" viewBox="0 0 280 176" width="280" height="176"></svg>
-        <span class="stem-geo-drag-hint">Kéo để xoay 3D</span>
+        <span class="stem-geo-drag-hint">${escapeHtml(t('geoDragHint'))}</span>
       </div>
 
       <div class="stem-geo-sliders">
         <label class="stem-slider-row">
-          <span>Xoay</span>
+          <span>${escapeHtml(t('geoYaw'))}</span>
           <input type="range" id="geo3d-yaw" min="-180" max="180" value="${Math.round(yaw)}">
           <span class="stem-slider-val" id="geo3d-yaw-val">${Math.round(yaw)}°</span>
         </label>
         <label class="stem-slider-row">
-          <span>Nghiêng</span>
+          <span>${escapeHtml(t('geoPitch'))}</span>
           <input type="range" id="geo3d-pitch" min="-60" max="75" value="${Math.round(pitch)}">
           <span class="stem-slider-val" id="geo3d-pitch-val">${Math.round(pitch)}°</span>
         </label>
       </div>
 
       <div class="stem-check-row">
-        <label class="stem-check"><input type="checkbox" id="geo3d-hidden" ${showHidden ? 'checked' : ''}> Nét đứt khuất</label>
-        <label class="stem-check"><input type="checkbox" id="geo3d-labels" ${showLabels ? 'checked' : ''}> Nhãn đỉnh</label>
-        <label class="stem-check"><input type="checkbox" id="geo3d-guides" ${showGuides ? 'checked' : ''}> Đường cao/Trục</label>
+        <label class="stem-check"><input type="checkbox" id="geo3d-hidden" ${showHidden ? 'checked' : ''}> ${escapeHtml(t('geoHidden'))}</label>
+        <label class="stem-check"><input type="checkbox" id="geo3d-labels" ${showLabels ? 'checked' : ''}> ${escapeHtml(t('geoLabels'))}</label>
+        <label class="stem-check"><input type="checkbox" id="geo3d-guides" ${showGuides ? 'checked' : ''}> ${escapeHtml(t('geoGuides'))}</label>
       </div>
 
       <div class="stem-formula-foot">
-        <button type="button" class="ctrl-btn stem-reset-btn" id="geo3d-reset">Góc chuẩn</button>
-        <button type="button" class="ctrl-btn is-active stem-submit-btn" id="geo3d-insert">Chèn lên bảng</button>
+        <button type="button" class="ctrl-btn stem-reset-btn" id="geo3d-reset">${escapeHtml(t('geoReset'))}</button>
+        <button type="button" class="ctrl-btn is-active stem-submit-btn" id="geo3d-insert">${escapeHtml(t('geoInsert'))}</button>
       </div>
     `;
 
@@ -675,12 +678,17 @@ export function createGeometry3dPicker(
     else open();
   }
 
+  const unsubLang = onLangChange(() => {
+    if (isOpen) renderBody();
+  });
+
   return {
     open,
     close,
     toggle,
     isOpen: () => isOpen,
     destroy() {
+      unsubLang();
       panelEl?.remove();
       panelEl = null;
       isOpen = false;

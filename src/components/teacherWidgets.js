@@ -7,6 +7,8 @@
  *    soft 2-second harmonic Web Audio bell chime, and auto-close on slide/page change.
  */
 
+import { t } from '../lib/i18n.js';
+
 // Session-scoped per-slide / per-page multi-note store (preserves exact open/docked state per page; clears when localhost closes)
 const SESSION_NOTES_BY_SCOPE = new Map(); // scopeKey -> { nextSeq: number, notes: Array<Note> }
 
@@ -280,13 +282,13 @@ export function createTeacherWidgets(stageEl, { scopeKey = 'default', onWidgetSt
       <div class="fnote-head">
         <span class="fnote-title">✎ NOTE ${note.num}</span>
         <div class="fnote-actions">
-          ${onOpenStemPicker ? `<button type="button" class="fnote-btn" data-fnote-action="stem" title="Ký hiệu Toán / Hóa / Lý / Khoa học (K)">∑</button>` : ''}
-          <button type="button" class="fnote-btn" data-fnote-action="clear" title="Xóa nội dung">⌫</button>
-          <button type="button" class="fnote-btn" data-fnote-action="dock" title="Thu gọn vào mép phải">»</button>
-          <button type="button" class="fnote-btn" data-fnote-action="close" title="Xóa Note ${note.num}">✕</button>
+          ${onOpenStemPicker ? `<button type="button" class="fnote-btn" data-fnote-action="stem" title="${t('noteStemTitle')}">∑</button>` : ''}
+          <button type="button" class="fnote-btn" data-fnote-action="clear" title="${t('noteClearTitle')}">⌫</button>
+          <button type="button" class="fnote-btn" data-fnote-action="dock" title="${t('noteDockTitle')}">»</button>
+          <button type="button" class="fnote-btn" data-fnote-action="close" title="${t('noteCloseTitle', { n: note.num })}">✕</button>
         </div>
       </div>
-      <textarea class="fnote-textarea" placeholder="Ghi công thức, từ vựng, giải thích..." spellcheck="false"></textarea>
+      <textarea class="fnote-textarea" placeholder="${t('notePlaceholder')}" spellcheck="false"></textarea>
     `;
 
     panelEl.addEventListener('pointerdown', () => {
@@ -577,12 +579,12 @@ export function createTeacherWidgets(stageEl, { scopeKey = 'default', onWidgetSt
     timerEl.setAttribute('aria-label', 'Mini Timer');
     timerEl.innerHTML = `
       <div class="ftimer-top">
-        <span class="ftimer-drag" title="Kéo để di chuyển">⋮⋮</span>
-        <button type="button" class="ftimer-readout" title="Bấm để nhập phút:giây (VD: 1:30 hoặc 45s)">01:00</button>
+        <span class="ftimer-drag" title="${t('timerDragTitle')}">⋮⋮</span>
+        <button type="button" class="ftimer-readout" title="${t('timerReadoutTitle')}">01:00</button>
         <div class="ftimer-ctrls">
-          <button type="button" class="ftimer-icon-btn is-primary" data-ftimer-action="toggle" title="Bắt đầu">▶</button>
-          <button type="button" class="ftimer-icon-btn" data-ftimer-action="reset" title="Đặt lại">↺</button>
-          <button type="button" class="ftimer-icon-btn" data-ftimer-action="close" title="Đóng Timer">✕</button>
+          <button type="button" class="ftimer-icon-btn is-primary" data-ftimer-action="toggle" title="${t('timerStart')}">▶</button>
+          <button type="button" class="ftimer-icon-btn" data-ftimer-action="reset" title="${t('timerReset')}">↺</button>
+          <button type="button" class="ftimer-icon-btn" data-ftimer-action="close" title="${t('timerClose')}">✕</button>
         </div>
       </div>
       <div class="ftimer-presets">

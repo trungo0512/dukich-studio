@@ -5,6 +5,7 @@
  */
 
 import { escapeHtml } from '../lib/markdown.js';
+import { onLangChange, t } from '../lib/i18n.js';
 import {
   createVectorArrow,
   createVectorPolyline,
@@ -18,7 +19,7 @@ const CURVE_COLORS = ['#1D4ED8', '#DC2626', '#059669', '#D97706'];
 
 const GRAPH_PRESETS = [
   {
-    label: 'Parabol',
+    labelKey: 'graphPreParabola',
     xMin: -5,
     xMax: 6,
     yMin: -5,
@@ -26,7 +27,7 @@ const GRAPH_PRESETS = [
     fns: ['x^2 - 2x - 3', 'x - 1']
   },
   {
-    label: 'Bậc 3',
+    labelKey: 'graphPreCubic',
     xMin: -4,
     xMax: 4,
     yMin: -4,
@@ -34,7 +35,7 @@ const GRAPH_PRESETS = [
     fns: ['x^3 - 3x']
   },
   {
-    label: 'Lượng giác',
+    labelKey: 'graphPreTrig',
     xMin: -6.5,
     xMax: 6.5,
     yMin: -2.2,
@@ -42,7 +43,7 @@ const GRAPH_PRESETS = [
     fns: ['sin(x)', 'cos(x)']
   },
   {
-    label: 'Phân thức',
+    labelKey: 'graphPreRat',
     xMin: -5,
     xMax: 7,
     yMin: -5,
@@ -50,7 +51,7 @@ const GRAPH_PRESETS = [
     fns: ['(2x - 1)/(x - 1)']
   },
   {
-    label: 'Mũ & Log',
+    labelKey: 'graphPreExpLog',
     xMin: -4,
     xMax: 6,
     yMin: -4,
@@ -608,14 +609,16 @@ export function createGraphPlotterPicker(
 
   function renderBody() {
     if (!panelEl) return;
+    const headTitle = panelEl.querySelector('.stem-head-title');
+    if (headTitle) headTitle.textContent = t('graphTitle');
     const body = panelEl.querySelector('#graph-body');
     if (!body) return;
 
     body.innerHTML = `
       <div class="stem-ex-row">
-        <span class="stem-ex-label">Mẫu:</span>
+        <span class="stem-ex-label">${escapeHtml(t('stemExamples'))}</span>
         ${GRAPH_PRESETS.map(
-          (p, idx) => `<button type="button" class="stem-ex-chip" data-graph-preset="${idx}">${escapeHtml(p.label)}</button>`
+          (p, idx) => `<button type="button" class="stem-ex-chip" data-graph-preset="${idx}">${escapeHtml(t(p.labelKey))}</button>`
         ).join('')}
       </div>
 
@@ -626,10 +629,10 @@ export function createGraphPlotterPicker(
           <div class="stem-fn-row">
             <span class="stem-fn-dot" style="background:${item.color};"></span>
             <span class="stem-fn-prefix">y =</span>
-            <input type="text" class="stem-fn-input" data-fn-idx="${idx}" value="${escapeHtml(item.expr)}" placeholder="VD: x^2 - 2x - 3" spellcheck="false">
+            <input type="text" class="stem-fn-input" data-fn-idx="${idx}" value="${escapeHtml(item.expr)}" placeholder="x^2 - 2x - 3" spellcheck="false">
             ${
               fns.length > 1
-                ? `<button type="button" class="stem-fn-del" data-fn-del="${idx}" title="Xóa hàm này">×</button>`
+                ? `<button type="button" class="stem-fn-del" data-fn-del="${idx}" title="${escapeHtml(t('delete'))}">×</button>`
                 : ''
             }
           </div>`
@@ -637,7 +640,7 @@ export function createGraphPlotterPicker(
           .join('')}
         ${
           fns.length < 4
-            ? `<button type="button" class="stem-add-fn-btn" id="graph-add-fn">+ Thêm hàm số</button>`
+            ? `<button type="button" class="stem-add-fn-btn" id="graph-add-fn">${escapeHtml(t('graphAddFn'))}</button>`
             : ''
         }
       </div>
@@ -654,14 +657,14 @@ export function createGraphPlotterPicker(
       </div>
 
       <div class="stem-check-row">
-        <label class="stem-check"><input type="checkbox" id="graph-grid" ${showGrid ? 'checked' : ''}> Lưới tọa độ</label>
-        <label class="stem-check"><input type="checkbox" id="graph-nums" ${showNumbers ? 'checked' : ''}> Số trục</label>
-        <label class="stem-check"><input type="checkbox" id="graph-legend" ${showLegend ? 'checked' : ''}> Nhãn hàm</label>
+        <label class="stem-check"><input type="checkbox" id="graph-grid" ${showGrid ? 'checked' : ''}> ${escapeHtml(t('graphGrid'))}</label>
+        <label class="stem-check"><input type="checkbox" id="graph-nums" ${showNumbers ? 'checked' : ''}> ${escapeHtml(t('graphNums'))}</label>
+        <label class="stem-check"><input type="checkbox" id="graph-legend" ${showLegend ? 'checked' : ''}> ${escapeHtml(t('graphLegend'))}</label>
       </div>
 
       <div class="stem-formula-foot">
-        <span class="stem-foot-tip">Hỗ trợ: ^, sin, cos, tan, sqrt, ln, abs, pi</span>
-        <button type="button" class="ctrl-btn is-active stem-submit-btn" id="graph-insert">Chèn đồ thị</button>
+        <span class="stem-foot-tip">${escapeHtml(t('graphTip'))}</span>
+        <button type="button" class="ctrl-btn is-active stem-submit-btn" id="graph-insert">${escapeHtml(t('graphInsert'))}</button>
       </div>
     `;
 
@@ -805,12 +808,17 @@ export function createGraphPlotterPicker(
     else open();
   }
 
+  const unsubLang = onLangChange(() => {
+    if (isOpen) renderBody();
+  });
+
   return {
     open,
     close,
     toggle,
     isOpen: () => isOpen,
     destroy() {
+      unsubLang();
       panelEl?.remove();
       panelEl = null;
       isOpen = false;

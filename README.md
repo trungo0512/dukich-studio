@@ -21,6 +21,7 @@ No cloud lock-in, no subscriptions, no database setup. Your decks, documents, an
 - **STEM Teaching Suite (`∑` Menu)**: Zero-bloat built-in STEM tools across Whiteboard and Teacher Tools - **Math / Chemistry / Physics / Science Symbols & KaTeX Formula Builder (`K`)**, interactive **3D Solid Geometry (`J`)** (8 solids with drag-to-rotate preview & automatic dashed hidden edges), **Function Graph Plotter `y = f(x)` (`Y`)** (multi-curve safe parser with asymptote splitting), and **Line / Bar / Pie Chart Builder (`B`)** - all inserted as native editable vector groups.
 - **Live Teacher Tools**: Techno Particle Laser (`L`), Pen (`P`), Rectangle Box (`R`), Text Note (`T`, with inline `$...$` KaTeX math support), Highlighter (`H`), Spotlight (`S`), multi-tab Floating Note Boxes (`N`), and Mini Timer (`M`) with gentle chime.
 - **4 Curated Color Palettes (Light & Dark)**: Summer Vibe, Deep Lake, Starry Night, and Neon Tokyo - all synced across Launcher, Slides, Documents, Whiteboard, and `brandsheet.html`.
+- **Bilingual UI Switcher (`EN / VN`)**: One-click English / Vietnamese interface toggle on Launcher and Whiteboard (automatically syncing Excalidraw's built-in language too), while keeping all user-customized folders, decks, documents, and notes untouched.
 
 <p>
   <img src="docs/screenshots/slide-deck.png" alt="Editorial 16:9 Slide Deck" width="49%" />

@@ -9380,5 +9380,46 @@ body.mode-whiteboard {
   font-size: 11.5px;
 }
 
+/* Bilingual Language Toggle Button (VN / EN + Vietnamese / English) */
+.lang-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lang-toggle-btn.is-compact {
+  padding: 4px 7px;
+  gap: 0;
+}
+
+.lang-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--btn-active-fg, #fff);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.lang-label {
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
 
 

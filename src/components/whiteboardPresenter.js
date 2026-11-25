@@ -1,6 +1,7 @@
 import { escapeHtml } from '../lib/markdown.js';
 import { BRAND_CONFIG } from '../lib/brand.js';
 import { loadBoardScene } from '../lib/boards.js';
+import { getLang, onLangChange, renderLangToggleButton, t, toggleLang } from '../lib/i18n.js';
 import { createTeacherWidgets } from './teacherWidgets.js';
 import { createStemPicker } from './stemPicker.js';
 import { createGeometry3dPicker } from './geometry3dPicker.js';
@@ -290,39 +291,40 @@ export function mountWhiteboardPresenter(
         <div class="wb-topbar-left">
           ${
             isOverlay
-              ? `<button type="button" class="ctrl-btn" id="wb-back-btn" title="Đóng Whiteboard, quay lại Slide / Document">← Back</button>`
-              : `<button type="button" class="ctrl-btn" id="wb-back-btn" title="Về thư viện">← Decks</button>`
+              ? `<button type="button" class="ctrl-btn" id="wb-back-btn" title="${escapeHtml(t('wbBackOverlayTitle'))}">${escapeHtml(t('backOverlay'))}</button>`
+              : `<button type="button" class="ctrl-btn" id="wb-back-btn" title="${escapeHtml(t('wbBackLauncherTitle'))}">${escapeHtml(t('backDecks'))}</button>`
           }
           <span class="wb-sep" aria-hidden="true"></span>
           <span class="wb-badge">BOARD</span>
           <h1 class="wb-title" id="wb-title">${escapeHtml(boardSlug)}</h1>
-          <span class="wb-status is-saved" id="wb-status">Saved</span>
+          <span class="wb-status is-saved" id="wb-status">${escapeHtml(t('saved'))}</span>
         </div>
         <div class="wb-topbar-right">
-          <button type="button" class="ctrl-btn" id="wb-save-btn" title="Lưu bảng vẽ (Ctrl+S)">Save</button>
-          <button type="button" class="ctrl-btn" id="wb-export-png-btn" title="Xuất ảnh PNG độ nét cao">Export PNG</button>
+          <button type="button" class="ctrl-btn" id="wb-save-btn" title="${escapeHtml(t('wbSaveTitle'))}">Save</button>
+          <button type="button" class="ctrl-btn" id="wb-export-png-btn" title="${escapeHtml(t('wbExportTitle'))}">Export PNG</button>
           <span class="wb-sep" aria-hidden="true"></span>
-          <button type="button" class="ctrl-btn ctrl-btn-icon ${gridOn ? 'is-active' : ''}" id="wb-grid-btn" title="Bật / tắt lưới ô caro (G)">G</button>
-          <div class="theme-swatch-row" role="group" aria-label="Chọn bảng màu">
+          ${renderLangToggleButton({ id: 'wb-lang-btn' })}
+          <button type="button" class="ctrl-btn ctrl-btn-icon ${gridOn ? 'is-active' : ''}" id="wb-grid-btn" title="${escapeHtml(t('wbGridTitle'))}">G</button>
+          <div class="theme-swatch-row" role="group" aria-label="Palette">
             ${THEMES.map(
-              (t) => `
+              (tItem) => `
               <button
                 type="button"
-                class="theme-swatch-btn ${activeTheme === t.id ? 'is-active' : ''}"
-                data-wb-theme="${t.id}"
-                style="--sw-accent: ${t.accent}; --sw-paper: ${t.paper};"
-                title="${escapeHtml(t.label)}"
-                aria-label="${escapeHtml(t.label)}"
+                class="theme-swatch-btn ${activeTheme === tItem.id ? 'is-active' : ''}"
+                data-wb-theme="${tItem.id}"
+                style="--sw-accent: ${tItem.accent}; --sw-paper: ${tItem.paper};"
+                title="${escapeHtml(tItem.label)}"
+                aria-label="${escapeHtml(tItem.label)}"
               ></button>`
             ).join('')}
           </div>
           <span class="wb-sep" aria-hidden="true"></span>
-          <button type="button" class="ctrl-btn ctrl-btn-icon" id="wb-fs-btn" title="Toàn màn hình (F)">⛶</button>
-          <button type="button" class="ctrl-btn ctrl-btn-icon" id="wb-close-btn" title="${isOverlay ? 'Đóng Whiteboard' : 'Đóng Whiteboard, về Thư viện'}">×</button>
+          <button type="button" class="ctrl-btn ctrl-btn-icon" id="wb-fs-btn" title="${escapeHtml(t('fullscreenTitle'))}">⛶</button>
+          <button type="button" class="ctrl-btn ctrl-btn-icon" id="wb-close-btn" title="${escapeHtml(isOverlay ? t('wbCloseOverlayTitle') : t('wbCloseLauncherTitle'))}">×</button>
         </div>
       </header>
       <div class="wb-stage" id="wb-stage">
-        <div class="wb-loading">Opening whiteboard...</div>
+        <div class="wb-loading">${escapeHtml(t('openingBoard'))}</div>
       </div>
     </div>
   `;
@@ -1251,7 +1253,7 @@ export function mountWhiteboardPresenter(
 
       const symItem = createToolbarDropdownItem({
         id: 'stem-symbols',
-        label: 'Ký hiệu & Công thức',
+        label: t('stemMenuSymbols'),
         shortcut: 'K',
         iconSvg: ICON_STEM_SIGMA,
         selected: Boolean(stemPicker?.isOpen()),
@@ -1266,7 +1268,7 @@ export function mountWhiteboardPresenter(
       container.appendChild(
         createToolbarDropdownItem({
           id: 'stem-3d',
-          label: 'Hình học không gian 3D',
+          label: t('stemMenu3d'),
           shortcut: 'J',
           iconSvg: ICON_STEM_3D,
           selected: Boolean(geometry3dPicker?.isOpen()),
@@ -1277,7 +1279,7 @@ export function mountWhiteboardPresenter(
       container.appendChild(
         createToolbarDropdownItem({
           id: 'stem-graph',
-          label: 'Đồ thị hàm số y = f(x)',
+          label: t('stemMenuGraph'),
           shortcut: 'Y',
           iconSvg: ICON_STEM_GRAPH,
           selected: Boolean(graphPlotterPicker?.isOpen()),
@@ -1288,7 +1290,7 @@ export function mountWhiteboardPresenter(
       container.appendChild(
         createToolbarDropdownItem({
           id: 'stem-chart',
-          label: 'Biểu đồ Line / Bar / Pie',
+          label: t('stemMenuChart'),
           shortcut: 'B',
           iconSvg: ICON_STEM_CHART,
           selected: Boolean(chartBuilderPicker?.isOpen()),
@@ -1478,10 +1480,10 @@ export function mountWhiteboardPresenter(
     saveStatus = next;
     if (!statusEl) return;
     statusEl.className = `wb-status is-${next}`;
-    if (next === 'saving') statusEl.textContent = 'Saving...';
-    else if (next === 'dirty') statusEl.textContent = 'Unsaved';
-    else if (next === 'error') statusEl.textContent = 'Save error';
-    else statusEl.textContent = 'Saved';
+    if (next === 'saving') statusEl.textContent = t('saving');
+    else if (next === 'dirty') statusEl.textContent = t('unsaved');
+    else if (next === 'error') statusEl.textContent = t('saveError');
+    else statusEl.textContent = t('saved');
   }
 
   async function persistBoard(force = false) {
@@ -1633,6 +1635,43 @@ export function mountWhiteboardPresenter(
   gridBtn?.addEventListener('click', () => {
     gridOn = applyGrid(!gridOn);
     syncGridToCanvas();
+  });
+
+  rootEl.querySelector('#wb-lang-btn')?.addEventListener('click', () => {
+    toggleLang();
+  });
+
+  function syncTopbarLangUi() {
+    const isVi = getLang() === 'vi';
+    const langBtn = rootEl.querySelector('#wb-lang-btn');
+    if (langBtn) {
+      const badge = langBtn.querySelector('.lang-badge');
+      const lbl = langBtn.querySelector('.lang-label');
+      if (badge) badge.textContent = isVi ? 'VN' : 'EN';
+      if (lbl) lbl.textContent = isVi ? 'Vietnamese' : 'English';
+    }
+    const backBtn = rootEl.querySelector('#wb-back-btn');
+    if (backBtn) {
+      backBtn.textContent = isOverlay ? t('backOverlay') : t('backDecks');
+      backBtn.title = isOverlay ? t('wbBackOverlayTitle') : t('wbBackLauncherTitle');
+    }
+    setStatus(saveStatus);
+    const stemMenu = stageEl.querySelector('[data-wb-tb-group="stem"] .wb-tb-dropdown');
+    if (stemMenu) {
+      const setItemText = (id, key) => {
+        const el = stemMenu.querySelector(`[data-wb-drop-item="${id}"] .dropdown-menu-item__text`);
+        if (el) el.textContent = t(key);
+      };
+      setItemText('stem-symbols', 'stemMenuSymbols');
+      setItemText('stem-3d', 'stemMenu3d');
+      setItemText('stem-graph', 'stemMenuGraph');
+      setItemText('stem-chart', 'stemMenuChart');
+    }
+    if (renderReactFn) renderReactFn();
+  }
+
+  const unsubLang = onLangChange(() => {
+    if (!disposed) syncTopbarLangUi();
   });
 
   rootEl.querySelectorAll('[data-wb-theme]').forEach((btn) => {
@@ -1855,6 +1894,7 @@ export function mountWhiteboardPresenter(
       renderReactFn = () => {
         if (!reactRoot || disposed) return;
         const themeMode = getThemeInfo(activeTheme).mode === 'dark' ? 'dark' : 'light';
+        const exLangCode = getLang() === 'vi' ? 'vi-VN' : 'en';
         reactRoot.render(
           h(
             Excalidraw,
@@ -1863,6 +1903,7 @@ export function mountWhiteboardPresenter(
                 excalidrawApi = api;
               },
               initialData,
+              langCode: exLangCode,
               theme: themeMode,
               gridModeEnabled: gridOn,
               aiEnabled: false,
@@ -1925,6 +1966,7 @@ export function mountWhiteboardPresenter(
 
   const cleanup = () => {
     disposed = true;
+    unsubLang();
     window.removeEventListener('keydown', onKeyDownCapture, true);
     document.removeEventListener('click', onDocumentClickCloseGroups);
     stageEl.removeEventListener('pointermove', onStagePointerMove);

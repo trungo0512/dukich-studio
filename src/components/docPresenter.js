@@ -1,5 +1,6 @@
 import { escapeHtml } from '../lib/markdown.js';
 import { BRAND_CONFIG } from '../lib/brand.js';
+import { t } from '../lib/i18n.js';
 import { THEMES, applyGrid, applyTheme, getSavedGrid, getSavedTheme } from '../lib/themes.js';
 import { createTeacherTools } from './teacherTools.js';
 import { createTeacherWidgets } from './teacherWidgets.js';
@@ -49,7 +50,7 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
         <div class="pdf-scroll-area doc-scroll-area" id="doc-scroll-area">
           <div class="pdf-pages-wrap doc-pages-wrap" id="doc-pages-wrap">
             <div class="doc-surface-host ${isPptx ? 'is-pptx' : 'is-docx'}" id="doc-surface-host">
-              <div class="pdf-loading" id="doc-status">Đang mở tài liệu ${formatLabel}...</div>
+              <div class="pdf-loading" id="doc-status">${escapeHtml(t('openingDoc'))}</div>
             </div>
           </div>
         </div>
@@ -57,7 +58,7 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
 
       <footer class="slide-footer pdf-footer">
         <div class="footer-left pdf-footer-left">
-          <a class="back-decks-btn pdf-back-btn" href="./" data-action="back-decks" title="Quay về Thư viện (Esc)">← Decks</a>
+          <a class="back-decks-btn pdf-back-btn" href="./" data-action="back-decks" title="${escapeHtml(t('backDecksTitle'))}">${escapeHtml(t('backDecks'))}</a>
           <div class="pdf-page-jump">
             <input type="number" class="pdf-page-input" id="doc-page-input" min="1" value="${currentPage}" aria-label="Trang hiện tại">
             <span class="pdf-page-total">/ <span id="doc-total-pages">--</span></span>
@@ -88,16 +89,16 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
         </div>
 
         <div class="footer-right pdf-footer-right">
-          <button type="button" class="foot-pill is-active" data-action="hand-tool" id="btn-hand-tool" title="Hand Tool / Di chuyển (V / Esc)">✋</button>
+          <button type="button" class="foot-pill is-active" data-action="hand-tool" id="btn-hand-tool" title="${escapeHtml(t('handToolTitle'))}">✋</button>
           ${
             !isPptx
-              ? `<button type="button" class="foot-pill" data-action="toggle-spread" id="btn-spread" title="Chuyển chế độ 1 trang / 2 trang đôi">1P</button>`
+              ? `<button type="button" class="foot-pill" data-action="toggle-spread" id="btn-spread" title="${escapeHtml(t('spreadTitle'))}">1P</button>`
               : ''
           }
           <span class="foot-sep" aria-hidden="true"></span>
-          <button type="button" class="foot-pill" data-action="zoom-out" id="btn-zoom-out" title="Thu nhỏ (-)">−</button>
-          <button type="button" class="foot-pill pdf-zoom-label" data-action="zoom-reset" id="btn-zoom-label" title="Đặt lại vừa khung (0)">100%</button>
-          <button type="button" class="foot-pill" data-action="zoom-in" id="btn-zoom-in" title="Phóng to (+)">+</button>
+          <button type="button" class="foot-pill" data-action="zoom-out" id="btn-zoom-out" title="${escapeHtml(t('zoomOutTitle'))}">−</button>
+          <button type="button" class="foot-pill pdf-zoom-label" data-action="zoom-reset" id="btn-zoom-label" title="${escapeHtml(t('zoomResetTitle'))}">100%</button>
+          <button type="button" class="foot-pill" data-action="zoom-in" id="btn-zoom-in" title="${escapeHtml(t('zoomInTitle'))}">+</button>
           <span class="foot-sep" aria-hidden="true"></span>
           <div class="dropup-wrap tools-dropup-wrap">
             <button type="button" class="foot-pill" data-action="toggle-tools" aria-haspopup="menu" aria-expanded="false" title="Teacher Tools (L / P / R / T / H / S)">
