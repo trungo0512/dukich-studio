@@ -170,7 +170,7 @@ function parseCustomDuration(raw) {
   return null;
 }
 
-export function createTeacherWidgets(stageEl, { scopeKey = 'default', onWidgetStateChange } = {}) {
+export function createTeacherWidgets(stageEl, { scopeKey = 'default', onWidgetStateChange, onOpenStemPicker } = {}) {
   const layer = document.createElement('div');
   layer.className = 'teacher-widgets-layer';
   stageEl.appendChild(layer);
@@ -280,6 +280,7 @@ export function createTeacherWidgets(stageEl, { scopeKey = 'default', onWidgetSt
       <div class="fnote-head">
         <span class="fnote-title">✎ NOTE ${note.num}</span>
         <div class="fnote-actions">
+          ${onOpenStemPicker ? `<button type="button" class="fnote-btn" data-fnote-action="stem" title="Ký hiệu Toán / Hóa / Lý / Khoa học (K)">∑</button>` : ''}
           <button type="button" class="fnote-btn" data-fnote-action="clear" title="Xóa nội dung">⌫</button>
           <button type="button" class="fnote-btn" data-fnote-action="dock" title="Thu gọn vào mép phải">»</button>
           <button type="button" class="fnote-btn" data-fnote-action="close" title="Xóa Note ${note.num}">✕</button>
@@ -309,6 +310,19 @@ export function createTeacherWidgets(stageEl, { scopeKey = 'default', onWidgetSt
       }
     });
     ro.observe(panelEl);
+
+    const stemBtn = panelEl.querySelector('[data-fnote-action="stem"]');
+    if (stemBtn) {
+      stemBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      stemBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        textarea.focus();
+        onOpenStemPicker?.({ mode: 'symbols' });
+      });
+    }
 
     panelEl.querySelector('[data-fnote-action="clear"]')?.addEventListener('click', (e) => {
       e.stopPropagation();

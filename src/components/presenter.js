@@ -4,6 +4,7 @@ import { THEMES, applyGrid, applyTheme, getLogoForTheme, getSavedGrid, getSavedT
 import { renderSlideContent, renderWireframe } from './layouts.js';
 import { createTeacherTools } from './teacherTools.js';
 import { createTeacherWidgets } from './teacherWidgets.js';
+import { createStemPicker } from './stemPicker.js';
 import { createSlideEditor } from './slideEditor.js';
 import { isWhiteboardOverlayOpen, mountFooterWhiteboardControl } from './whiteboardOverlay.js';
 
@@ -34,6 +35,7 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
   let activeToolMode = 'off';
   let teacherTools = null;
   let teacherWidgets = null;
+  let stemPicker = null;
   let slideEditor = null;
   let wbFooterControl = null;
   let hlTimers = [];
@@ -326,6 +328,10 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
       teacherWidgets.destroy();
       teacherWidgets = null;
     }
+    if (stemPicker) {
+      stemPicker.destroy();
+      stemPicker = null;
+    }
     if (wbFooterControl) {
       wbFooterControl.destroy();
       wbFooterControl = null;
@@ -442,6 +448,11 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
                       <span class="dropup-num">▤</span>
                       <span class="dropup-text"><span class="dropup-title">Note Box</span></span>
                       <span class="tool-kbd">N</span>
+                    </button>
+                    <button type="button" class="dropup-item tool-item" data-widget-action="stem" role="menuitem">
+                      <span class="dropup-num">∑</span>
+                      <span class="dropup-text"><span class="dropup-title">STEM Symbols</span></span>
+                      <span class="tool-kbd">K</span>
                     </button>
                     <button type="button" class="dropup-item tool-item" data-widget-action="timer" role="menuitem">
                       <span class="dropup-num">◷</span>
@@ -612,8 +623,17 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
         initialMode: activeToolMode,
         onStateChange: syncToolsUi
       });
+      stemPicker = createStemPicker(stageEl, {
+        showFormulaColor: false,
+        onInsertSymbol: (sym) => teacherTools?.insertTextAtEditorOrStage(sym),
+        onInsertFormula: (latex) => teacherTools?.insertFormulaAnnotation(latex),
+        onVisibilityChange: (open) => {
+          rootEl.querySelector('[data-widget-action="stem"]')?.classList.toggle('is-current', open);
+        }
+      });
       teacherWidgets = createTeacherWidgets(stageEl, {
         scopeKey: `deck:${deck.slug}:${currentIndex}`,
+        onOpenStemPicker: (opts) => stemPicker?.open(opts),
         onWidgetStateChange: ({ noteOpen, timerOpen }) => {
           rootEl.querySelector('[data-widget-action="note"]')?.classList.toggle('is-current', noteOpen);
           rootEl.querySelector('[data-widget-action="timer"]')?.classList.toggle('is-current', timerOpen);
@@ -624,6 +644,12 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
     rootEl.querySelector('[data-widget-action="note"]')?.addEventListener('click', (e) => {
       e.stopPropagation();
       teacherWidgets?.toggleNoteBox();
+      setToolsOpen(false);
+    });
+
+    rootEl.querySelector('[data-widget-action="stem"]')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      stemPicker?.toggle();
       setToolsOpen(false);
     });
 
@@ -1478,6 +1504,11 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
         e.preventDefault();
         teacherWidgets?.toggleNoteBox();
         break;
+      case 'k':
+      case 'K':
+        e.preventDefault();
+        stemPicker?.toggle();
+        break;
       case 'm':
       case 'M':
         e.preventDefault();
@@ -1491,7 +1522,10 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
         }
         break;
       case 'Escape':
-        if (dropupOpen || toolsOpen) {
+        if (stemPicker?.isOpen()) {
+          e.preventDefault();
+          stemPicker.close();
+        } else if (dropupOpen || toolsOpen) {
           e.preventDefault();
           setDropupOpen(false);
           setToolsOpen(false);
@@ -1625,6 +1659,10 @@ export function mountPresenter(rootEl, deck, { onBackToLauncher }) {
     if (teacherWidgets) {
       teacherWidgets.destroy();
       teacherWidgets = null;
+    }
+    if (stemPicker) {
+      stemPicker.destroy();
+      stemPicker = null;
     }
     if (wbFooterControl) {
       wbFooterControl.destroy();

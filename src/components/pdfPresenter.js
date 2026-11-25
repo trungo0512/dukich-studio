@@ -5,6 +5,7 @@ import { BRAND_CONFIG } from '../lib/brand.js';
 import { THEMES, applyGrid, applyTheme, getSavedGrid, getSavedTheme } from '../lib/themes.js';
 import { createTeacherTools } from './teacherTools.js';
 import { createTeacherWidgets } from './teacherWidgets.js';
+import { createStemPicker } from './stemPicker.js';
 import { isWhiteboardOverlayOpen, mountFooterWhiteboardControl } from './whiteboardOverlay.js';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
@@ -147,6 +148,11 @@ export function mountPdfPresenter(rootEl, book, { onBackToLauncher }) {
                   <span class="dropup-num">▤</span>
                   <span class="dropup-text"><span class="dropup-title">Note Box</span></span>
                   <span class="tool-kbd">N</span>
+                </button>
+                <button type="button" class="dropup-item tool-item" data-widget-action="stem" role="menuitem">
+                  <span class="dropup-num">∑</span>
+                  <span class="dropup-text"><span class="dropup-title">STEM Symbols</span></span>
+                  <span class="tool-kbd">K</span>
                 </button>
                 <button type="button" class="dropup-item tool-item" data-widget-action="timer" role="menuitem">
                   <span class="dropup-num">◷</span>
@@ -566,8 +572,19 @@ export function mountPdfPresenter(rootEl, book, { onBackToLauncher }) {
     }
   });
 
+  let stemPicker = null;
+  stemPicker = createStemPicker(stageEl, {
+    showFormulaColor: false,
+    onInsertSymbol: (sym) => teacherTools?.insertTextAtEditorOrStage(sym),
+    onInsertFormula: (latex) => teacherTools?.insertFormulaAnnotation(latex),
+    onVisibilityChange: (open) => {
+      rootEl.querySelector('[data-widget-action="stem"]')?.classList.toggle('is-current', open);
+    }
+  });
+
   teacherWidgets = createTeacherWidgets(stageEl, {
     scopeKey: `pdf:${getPageStoreKey()}`,
+    onOpenStemPicker: (opts) => stemPicker?.open(opts),
     onWidgetStateChange: ({ noteOpen, timerOpen }) => {
       rootEl.querySelector('[data-widget-action="note"]')?.classList.toggle('is-current', noteOpen);
       rootEl.querySelector('[data-widget-action="timer"]')?.classList.toggle('is-current', timerOpen);
@@ -577,6 +594,12 @@ export function mountPdfPresenter(rootEl, book, { onBackToLauncher }) {
   rootEl.querySelector('[data-widget-action="note"]')?.addEventListener('click', (e) => {
     e.stopPropagation();
     teacherWidgets?.toggleNoteBox();
+    setToolsOpen(false);
+  });
+
+  rootEl.querySelector('[data-widget-action="stem"]')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stemPicker?.toggle();
     setToolsOpen(false);
   });
 
@@ -860,6 +883,11 @@ export function mountPdfPresenter(rootEl, book, { onBackToLauncher }) {
         e.preventDefault();
         teacherWidgets?.toggleNoteBox();
         break;
+      case 'k':
+      case 'K':
+        e.preventDefault();
+        stemPicker?.toggle();
+        break;
       case 'm':
       case 'M':
         e.preventDefault();
@@ -873,7 +901,10 @@ export function mountPdfPresenter(rootEl, book, { onBackToLauncher }) {
         }
         break;
       case 'Escape':
-        if (gridViewOpen) {
+        if (stemPicker?.isOpen()) {
+          e.preventDefault();
+          stemPicker.close();
+        } else if (gridViewOpen) {
           e.preventDefault();
           setGridViewOpen(false);
         } else if (toolsOpen) {
@@ -993,6 +1024,10 @@ export function mountPdfPresenter(rootEl, book, { onBackToLauncher }) {
     if (teacherWidgets) {
       teacherWidgets.destroy();
       teacherWidgets = null;
+    }
+    if (stemPicker) {
+      stemPicker.destroy();
+      stemPicker = null;
     }
     wbFooterControl?.destroy();
     try {

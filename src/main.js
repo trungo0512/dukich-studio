@@ -1,7 +1,7 @@
 import './styles/themes.css';
 import './styles/engine.css';
 import { getDeckBySlug } from './lib/decks.js';
-import { getCourseBookById } from './lib/books.js';
+import { getCourseBookById, fetchCourseBookById } from './lib/books.js';
 import { mountLauncher } from './components/launcher.js';
 import { mountPresenter } from './components/presenter.js';
 import { mountPdfPresenter } from './components/pdfPresenter.js';
@@ -127,12 +127,12 @@ async function openLocalDocFile(file) {
 function route() {
   const { deck: deckSlug, book: bookId, board: boardSlug } = getParamsFromUrl();
   const book = bookId ? getCourseBookById(bookId) : null;
-  const deck = !book && !boardSlug && deckSlug ? getDeckBySlug(deckSlug) : null;
+  const deck = !book && !bookId && !boardSlug && deckSlug ? getDeckBySlug(deckSlug) : null;
 
   const nextKey = boardSlug
     ? `board:${boardSlug}`
-    : book
-      ? `book:${book.id}`
+    : bookId
+      ? `book:${bookId}`
       : deck
         ? `deck:${deck.slug}`
         : 'launcher';
@@ -164,15 +164,45 @@ function route() {
         if (mountedKey !== token) return;
         navigateToLauncher();
       });
-  } else if (book) {
-    if (book.format === 'docx' || book.format === 'pptx') {
-      cleanupCurrent = mountDocPresenter(appRoot, book, {
-        onBackToLauncher: navigateToLauncher
-      });
+  } else if (bookId) {
+    const mountFoundBook = (resolvedBook) => {
+      if (resolvedBook.format === 'docx' || resolvedBook.format === 'pptx') {
+        cleanupCurrent = mountDocPresenter(appRoot, resolvedBook, {
+          onBackToLauncher: navigateToLauncher
+        });
+      } else {
+        cleanupCurrent = mountPdfPresenter(appRoot, resolvedBook, {
+          onBackToLauncher: navigateToLauncher
+        });
+      }
+    };
+    if (book) {
+      mountFoundBook(book);
     } else {
-      cleanupCurrent = mountPdfPresenter(appRoot, book, {
-        onBackToLauncher: navigateToLauncher
-      });
+      const token = nextKey;
+      document.body.className = 'paper-grid mode-presenter mode-pdf';
+      appRoot.innerHTML = `
+        <div class="pdf-presenter-shell paper-grid">
+          <div class="pdf-stage">
+            <div class="pdf-scroll-area" style="display:flex;align-items:center;justify-content:center;">
+              <div class="pdf-loading">Opening...</div>
+            </div>
+          </div>
+        </div>
+      `;
+      fetchCourseBookById(bookId)
+        .then((resolvedBook) => {
+          if (mountedKey !== token) return;
+          if (resolvedBook) {
+            mountFoundBook(resolvedBook);
+          } else {
+            navigateToLauncher();
+          }
+        })
+        .catch(() => {
+          if (mountedKey !== token) return;
+          navigateToLauncher();
+        });
     }
   } else if (deck) {
     cleanupCurrent = mountPresenter(appRoot, deck, {

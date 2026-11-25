@@ -18,7 +18,8 @@ No cloud lock-in, no subscriptions, no database setup. Your decks, documents, an
 - **Interactive Question Engine**: 4 question groups (True/False & inline fill-in, two-column matching, tables/summaries/flow-charts/diagrams, and single/multi-choice) with independent step-by-step Evidence and Answer reveals.
 - **Documents Presenter (`Docs`)**: Fullscreen read-only presenter for **PDF**, **PowerPoint (`.pptx`, `.ppt`)**, and **Word (`.docx`, `.doc`)** with `1P/2P` spread view, `60%-300%` zoom, 6-column thumbnail grid, and persistent per-page annotations.
 - **Infinite Canvas Whiteboard (`Board`)**: White-labeled Excalidraw canvas with local save (`Ctrl+S` + auto-save), PNG export, custom grouped Shape & Laser tools (`Default Laser` + `Particle Laser`), smart text-matched Highlighter (`H`), and an instant overlay launcher right from the Slide/Document footer.
-- **Live Teacher Tools**: Techno Particle Laser (`L`), Pen (`P`), Rectangle Box (`R`), Text Note (`T`), Highlighter (`H`), Spotlight (`S`), multi-tab Floating Note Boxes (`N`), and Mini Timer (`M`) with gentle chime.
+- **STEM Teaching Suite (`∑` Menu)**: Zero-bloat built-in STEM tools across Whiteboard and Teacher Tools - **Math / Chemistry / Physics / Science Symbols & KaTeX Formula Builder (`K`)**, interactive **3D Solid Geometry (`J`)** (8 solids with drag-to-rotate preview & automatic dashed hidden edges), **Function Graph Plotter `y = f(x)` (`Y`)** (multi-curve safe parser with asymptote splitting), and **Line / Bar / Pie Chart Builder (`B`)** - all inserted as native editable vector groups.
+- **Live Teacher Tools**: Techno Particle Laser (`L`), Pen (`P`), Rectangle Box (`R`), Text Note (`T`, with inline `$...$` KaTeX math support), Highlighter (`H`), Spotlight (`S`), multi-tab Floating Note Boxes (`N`), and Mini Timer (`M`) with gentle chime.
 - **4 Curated Color Palettes (Light & Dark)**: Summer Vibe, Deep Lake, Starry Night, and Neon Tokyo - all synced across Launcher, Slides, Documents, Whiteboard, and `brandsheet.html`.
 
 <p>
@@ -77,8 +78,9 @@ Open:
 | **Slides / Docs** | `G` / `F` | Toggle Graph Grid / Fullscreen |
 | **Slides** | `E` | Open / Close Slide Studio Editor |
 | **Teacher Tools** | `V` / `L` / `P` / `R` / `T` / `H` / `S` | Hand / Laser / Pen / Box / Text / Highlighter / Spotlight |
-| **Classroom Widgets** | `N` / `M` | Spawn Floating Note Box / Toggle Mini Timer |
+| **Classroom Widgets** | `N` / `K` / `M` | Spawn Floating Note Box / STEM Symbols & Formula / Toggle Mini Timer |
 | **Whiteboard** | `V` / `Q` / `R` / `D` / `O` / `P` / `T` / `H` / `L` | Hand / Select / Rect / Diamond / Ellipse / Pen / Text / Smart Highlighter / Laser |
+| **Whiteboard STEM** | `K` / `J` / `Y` / `B` | STEM Symbols & Formula / 3D Solid Geometry / Function Graph `y=f(x)` / Line-Bar-Pie Charts |
 | **Editing** | `Ctrl+Z` / `Ctrl+S` | Undo / Save immediately |
 
 ---
@@ -112,6 +114,7 @@ dukich-studio/
 Du Kích Studio stands on the shoulders of great open-source projects:
 
 - [Excalidraw](https://github.com/excalidraw/excalidraw) (MIT License) - Infinite whiteboard canvas engine
+- [KaTeX](https://github.com/KaTeX/KaTeX) (MIT License) - Fast math and chemistry formula typesetting
 - [PDF.js](https://github.com/mozilla/pdf.js) (Apache-2.0 License) - High-DPI PDF rendering
 - [docx-preview](https://github.com/VolodymyrBaydalka/docxjs) (Apache-2.0 License) & [pptx-preview](https://github.com/pipipi-pikachu/pptx-preview) (MIT License) - Client-side Office fallback viewers
 - [Vite](https://github.com/vitejs/vite) (MIT License) & [React](https://github.com/facebook/react) (MIT License)

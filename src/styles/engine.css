@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    Multi-Deck Launcher & 16:9 Presentation Stage
    ========================================================= */
 
@@ -8693,4 +8693,692 @@ body.mode-whiteboard {
   color: var(--ink-secondary);
   text-align: center;
 }
+
+/* ==========================================================================
+   STEM SYMBOLS & FORMULA PICKER (Slides / Docs / Note Box / Whiteboard)
+   ========================================================================== */
+.stem-picker-panel {
+  position: absolute;
+  right: 16px;
+  bottom: 64px;
+  width: 344px;
+  max-width: calc(100% - 24px);
+  display: none;
+  flex-direction: column;
+  background: var(--paper-elevated);
+  border: 1.5px solid var(--paper-border);
+  border-radius: 12px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+  z-index: 68;
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  user-select: none;
+}
+
+.wb-stage .stem-picker-panel {
+  bottom: 18px;
+  right: 18px;
+  z-index: 42;
+}
+
+.stem-picker-panel.is-visible {
+  display: flex;
+}
+
+.stem-picker-panel.is-dragging {
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.3);
+}
+
+.stem-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 11px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--paper-border);
+  cursor: grab;
+}
+
+.stem-head:active {
+  cursor: grabbing;
+}
+
+.stem-head-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.stem-head-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--btn-active-fg, #fff);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stem-head-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-primary);
+}
+
+.stem-head-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stem-toast {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  white-space: nowrap;
+}
+
+.stem-toast.is-visible {
+  opacity: 1;
+}
+
+.stem-close-btn {
+  appearance: none;
+  border: 1px solid var(--paper-border);
+  background: transparent;
+  color: var(--ink-secondary);
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stem-close-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stem-mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 6px 10px 0;
+  background: var(--paper-elevated);
+}
+
+.stem-mode-tab {
+  appearance: none;
+  border: 1px solid var(--paper-border);
+  background: var(--paper);
+  color: var(--ink-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.stem-mode-tab:hover {
+  color: var(--ink-primary);
+  border-color: var(--accent);
+}
+
+.stem-mode-tab.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--btn-active-fg, #fff);
+}
+
+.stem-body {
+  padding: 9px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stem-subtabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.stem-subtab {
+  appearance: none;
+  border: 1px solid var(--paper-border);
+  background: var(--paper);
+  color: var(--ink-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.stem-subtab.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.stem-sym-grid {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.stem-sym-btn {
+  appearance: none;
+  border: 1px solid var(--paper-border);
+  background: var(--paper);
+  color: var(--ink-primary);
+  height: 30px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.1s ease, background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.stem-sym-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--btn-active-fg, #fff);
+  transform: translateY(-1px);
+}
+
+.stem-snip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--paper-border);
+}
+
+.stem-snip-btn {
+  appearance: none;
+  border: 1px solid var(--paper-border);
+  background: var(--paper);
+  color: var(--ink-primary);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.stem-snip-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stem-hint {
+  font-size: 10.5px;
+  color: var(--ink-secondary);
+  line-height: 1.35;
+}
+
+.stem-tpl-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.stem-tpl-btn {
+  appearance: none;
+  border: 1px solid var(--paper-border);
+  background: var(--paper);
+  color: var(--ink-primary);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.stem-tpl-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stem-ex-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.stem-ex-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-secondary);
+  margin-right: 2px;
+}
+
+.stem-ex-chip {
+  appearance: none;
+  border: 1px solid var(--paper-border);
+  background: transparent;
+  color: var(--ink-secondary);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 99px;
+  cursor: pointer;
+}
+
+.stem-ex-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stem-formula-input {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 52px;
+  max-height: 110px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: 1px solid var(--paper-border);
+  background: var(--paper);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.45;
+  outline: none;
+  user-select: text;
+}
+
+.stem-formula-input:focus {
+  border-color: var(--accent);
+}
+
+.stem-preview-box {
+  min-height: 58px;
+  max-height: 120px;
+  overflow: auto;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px dashed var(--paper-border);
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--ink-primary);
+}
+
+.stem-preview-box .katex-display {
+  margin: 0 !important;
+}
+
+.stem-preview-placeholder {
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+  font-style: italic;
+}
+
+.stem-formula-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stem-color-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stem-color-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--paper-border);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.stem-color-dot.is-active {
+  transform: scale(1.14);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.stem-foot-tip {
+  font-size: 10.5px;
+  color: var(--ink-secondary);
+}
+
+.stem-submit-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Rendered KaTeX inside Teacher Tools Text Notes */
+.teacher-text-node.has-math .teacher-text-content {
+  white-space: normal;
+  display: inline-block;
+  line-height: 1.3;
+}
+
+.teacher-text-node .stem-math-block {
+  display: block;
+  margin: 0.12em 0;
+}
+
+.teacher-text-node .stem-math-block .katex-display {
+  margin: 0 !important;
+}
+
+.teacher-text-node .katex {
+  font-size: 1em;
+  color: inherit;
+}
+
+/* Whiteboard main toolbar STEM button & sub-panels (3D Geometry, Graph Plotter, Charts) */
+.wb-tb-stem {
+  margin-left: 2px;
+}
+
+.stem-geo-panel,
+.stem-graph-panel,
+.stem-chart-panel {
+  width: 348px;
+}
+
+.stem-solid-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.stem-solid-btn {
+  appearance: none;
+  border: 1px solid var(--paper-border);
+  background: var(--paper);
+  color: var(--ink-primary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stem-solid-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stem-solid-btn.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--btn-active-fg, #fff);
+}
+
+.stem-geo-preview-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  border: 1px dashed var(--paper-border);
+  border-radius: 8px;
+  padding: 4px;
+  color: var(--ink-primary);
+  cursor: grab;
+  touch-action: none;
+}
+
+.stem-geo-preview-wrap:active {
+  cursor: grabbing;
+}
+
+.stem-geo-preview-wrap.is-static {
+  cursor: default;
+}
+
+.stem-geo-preview-wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 180px;
+}
+
+.stem-geo-drag-hint {
+  position: absolute;
+  right: 8px;
+  bottom: 5px;
+  font-size: 9.5px;
+  color: var(--ink-secondary);
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.stem-geo-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stem-slider-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 34px;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--ink-secondary);
+}
+
+.stem-slider-row input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+  margin: 0;
+}
+
+.stem-slider-val {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-align: right;
+  color: var(--ink-primary);
+}
+
+.stem-check-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.stem-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--ink-primary);
+  cursor: pointer;
+}
+
+.stem-check input {
+  accent-color: var(--accent);
+  margin: 0;
+}
+
+.stem-reset-btn {
+  padding: 5px 10px;
+  font-size: 11.5px;
+}
+
+.stem-fn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stem-fn-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stem-fn-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stem-fn-prefix {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-secondary);
+  flex-shrink: 0;
+}
+
+.stem-fn-input {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--paper-border);
+  background: var(--paper);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  outline: none;
+  user-select: text;
+}
+
+.stem-fn-input:focus {
+  border-color: var(--accent);
+}
+
+.stem-fn-input.is-invalid {
+  border-color: #dc2626;
+}
+
+.stem-fn-del {
+  appearance: none;
+  border: 1px solid var(--paper-border);
+  background: transparent;
+  color: var(--ink-secondary);
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.stem-fn-del:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.stem-add-fn-btn {
+  appearance: none;
+  border: 1px dashed var(--paper-border);
+  background: transparent;
+  color: var(--ink-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.stem-add-fn-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.stem-range-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.stem-range-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--ink-secondary);
+}
+
+.stem-range-grid input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 5px;
+  border-radius: 5px;
+  border: 1px solid var(--paper-border);
+  background: var(--paper);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  outline: none;
+  user-select: text;
+}
+
+.stem-range-grid input:focus {
+  border-color: var(--accent);
+}
+
+.stem-chart-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.stem-chart-meta-row {
+  display: flex;
+  gap: 5px;
+}
+
+.stem-unit-input {
+  flex: 0 0 72px;
+}
+
+.stem-csv-input {
+  min-height: 76px;
+  max-height: 120px;
+  font-size: 11.5px;
+}
+
+
 

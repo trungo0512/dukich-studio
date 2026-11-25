@@ -2,6 +2,11 @@ import { escapeHtml } from '../lib/markdown.js';
 import { BRAND_CONFIG } from '../lib/brand.js';
 import { loadBoardScene } from '../lib/boards.js';
 import { createTeacherWidgets } from './teacherWidgets.js';
+import { createStemPicker } from './stemPicker.js';
+import { createGeometry3dPicker } from './geometry3dPicker.js';
+import { createGraphPlotterPicker } from './graphPlotterPicker.js';
+import { createChartBuilderPicker } from './chartBuilderPicker.js';
+import { renderFormulaToPngDataUrl } from '../lib/stemMath.js';
 import { THEMES, applyGrid, applyTheme, getSavedGrid, getSavedTheme, getThemeInfo } from '../lib/themes.js';
 
 let bodyFontAliasedPromise = null;
@@ -81,6 +86,14 @@ const ICON_LASER_DEFAULT =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 15.5 8.5"/><circle cx="17.5" cy="6.5" r="2.2"/><path d="M17.5 1.8v1.5"/><path d="M22.2 6.5h-1.5"/><path d="m20.8 3.2-1 1"/></svg>';
 const ICON_LASER_DK =
   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5" stroke-dasharray="3 2.5"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/><circle cx="5" cy="5.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="6.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="18" cy="19" r="1.2" fill="currentColor" stroke="none"/></svg>';
+const ICON_STEM_SIGMA =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6H7l6 6-6 6h11"/></svg>';
+const ICON_STEM_3D =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 20 7.5v9L12 21 4 16.5v-9L12 3Z"/><path d="M12 12 20 7.5"/><path d="M12 12 4 7.5"/><path d="M12 12v9"/></svg>';
+const ICON_STEM_GRAPH =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M5 20V4"/><path d="M6.5 16.5c2.2-7 5-10 7.5-4.5s4.2 1.5 5.5-5"/></svg>';
+const ICON_STEM_CHART =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><rect x="6" y="11" width="3" height="8" rx="0.8"/><rect x="11" y="6" width="3" height="13" rx="0.8"/><rect x="16" y="9" width="3" height="10" rx="0.8"/></svg>';
 
 function parseCssColorRgb(color) {
   const c = String(color || '').trim();
@@ -266,7 +279,7 @@ export function mountWhiteboardPresenter(
   let openCustomGroup = null; // null | 'shape' | 'laser'
   let domObserver = null;
 
-  // Particle Laser engine state (matching teacherTools.js Techno Particle Laser)
+  // Particle Laser particle engine state (matching teacherTools.js Techno Particle Laser)
   let dkParticles = [];
   let dkLastSpawn = { x: -999, y: -999, t: 0 };
   let dkLaserRaf = null;
@@ -325,16 +338,312 @@ export function mountWhiteboardPresenter(
   spotlightEl.setAttribute('aria-hidden', 'true');
   stageEl.appendChild(spotlightEl);
 
-  // Particle Laser overlay canvas
+  // Particle Laser Techno Particle overlay canvas
   const dkLaserCanvas = document.createElement('canvas');
   dkLaserCanvas.className = 'wb-dk-laser-canvas';
   dkLaserCanvas.setAttribute('aria-hidden', 'true');
   stageEl.appendChild(dkLaserCanvas);
   const dkLaserCtx = dkLaserCanvas.getContext('2d');
 
+  function getSelectedFormulaElement() {
+    if (!excalidrawApi) return null;
+    const st = excalidrawApi.getAppState() || {};
+    const selectedIds = Object.keys(st.selectedElementIds || {}).filter((id) => st.selectedElementIds[id]);
+    if (selectedIds.length !== 1) return null;
+    const elements = excalidrawApi.getSceneElements() || [];
+    const el = elements.find((item) => item && !item.isDeleted && item.id === selectedIds[0]);
+    if (el && el.type === 'image' && el.customData && typeof el.customData.dkFormula === 'string') {
+      return el;
+    }
+    return null;
+  }
+
+  function getViewportSceneCenter() {
+    const st = excalidrawApi?.getAppState?.() || {};
+    const zoomVal = st.zoom?.value || 1;
+    const vw = st.width || stageEl.clientWidth || 1000;
+    const vh = st.height || stageEl.clientHeight || 600;
+    return {
+      x: vw / 2 / zoomVal - (st.scrollX || 0),
+      y: vh / 2 / zoomVal - (st.scrollY || 0)
+    };
+  }
+
+  function insertSymbolOnBoard(sym) {
+    if (!excalidrawApi || !sym) return false;
+    const elements = excalidrawApi.getSceneElements() || [];
+    const st = excalidrawApi.getAppState() || {};
+    const selectedIds = Object.keys(st.selectedElementIds || {}).filter((id) => st.selectedElementIds[id]);
+
+    // If a single text element is selected on the canvas, append the symbol to it cleanly
+    if (selectedIds.length === 1) {
+      const target = elements.find((el) => el && !el.isDeleted && el.id === selectedIds[0] && el.type === 'text');
+      if (target) {
+        const nextText = `${target.text || ''}${sym}`;
+        const updated = elements.map((el) =>
+          el.id === target.id
+            ? {
+                ...el,
+                text: nextText,
+                originalText: nextText,
+                width: Math.max(el.width || 24, (el.width || 24) + sym.length * ((el.fontSize || 24) * 0.62)),
+                version: (el.version || 1) + 1,
+                versionNonce: Math.floor(Math.random() * 2000000000),
+                updated: Date.now()
+              }
+            : el
+        );
+        excalidrawApi.updateScene({ elements: updated });
+        scheduleAutosave();
+        return true;
+      }
+    }
+
+    // Otherwise create a crisp new native Excalidraw text element at viewport center
+    const center = getViewportSceneCenter();
+    const fontSize = Math.max(24, st.currentItemFontSize || 28);
+    const fontFamily = st.currentItemFontFamily || excalidrawMod?.FONT_FAMILY?.Helvetica || 2;
+    const strokeColor = st.currentItemStrokeColor || '#1e1e1e';
+
+    let createdEl = null;
+    if (typeof excalidrawMod?.convertToExcalidrawElements === 'function') {
+      const converted = excalidrawMod.convertToExcalidrawElements([
+        {
+          type: 'text',
+          x: Math.round(center.x - 40),
+          y: Math.round(center.y - fontSize / 2),
+          text: sym,
+          fontSize,
+          fontFamily,
+          strokeColor
+        }
+      ]);
+      createdEl = converted?.[0] || null;
+    }
+
+    if (!createdEl) return false;
+    excalidrawApi.updateScene({
+      elements: [...elements, createdEl],
+      appState: {
+        selectedElementIds: { [createdEl.id]: true }
+      }
+    });
+    excalidrawApi.setActiveTool({ type: 'selection' });
+    scheduleAutosave();
+    return true;
+  }
+
+  async function insertFormulaOnBoard(latex, { color = '#1A1D24', editingMeta = null } = {}) {
+    if (!excalidrawApi) return;
+    const rendered = await renderFormulaToPngDataUrl(latex, { color, fontSize: 36, scale: 3 });
+    const fileId = `stem-formula-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    excalidrawApi.addFiles([
+      {
+        id: fileId,
+        dataURL: rendered.dataURL,
+        mimeType: rendered.mimeType,
+        created: Date.now(),
+        lastRetrieved: Date.now()
+      }
+    ]);
+
+    const elements = excalidrawApi.getSceneElements() || [];
+    const editId = editingMeta?.elementId || null;
+    const existing = editId ? elements.find((el) => el && !el.isDeleted && el.id === editId) : null;
+
+    if (existing) {
+      const nextElements = elements.map((el) =>
+        el.id === existing.id
+          ? {
+              ...el,
+              fileId,
+              width: rendered.width,
+              height: rendered.height,
+              version: (el.version || 1) + 1,
+              versionNonce: Math.floor(Math.random() * 2000000000),
+              updated: Date.now(),
+              customData: { ...(el.customData || {}), dkFormula: latex, dkFormulaColor: color }
+            }
+          : el
+      );
+      excalidrawApi.updateScene({
+        elements: nextElements,
+        appState: { selectedElementIds: { [existing.id]: true } }
+      });
+      excalidrawApi.setActiveTool({ type: 'selection' });
+      scheduleAutosave();
+      return;
+    }
+
+    const center = getViewportSceneCenter();
+    const newId = `stem-el-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const imageEl = {
+      id: newId,
+      type: 'image',
+      x: Math.round(center.x - rendered.width / 2),
+      y: Math.round(center.y - rendered.height / 2),
+      width: rendered.width,
+      height: rendered.height,
+      angle: 0,
+      strokeColor: 'transparent',
+      backgroundColor: 'transparent',
+      fillStyle: 'solid',
+      strokeWidth: 1,
+      strokeStyle: 'solid',
+      roughness: 0,
+      opacity: 100,
+      groupIds: [],
+      frameId: null,
+      index: null,
+      roundness: null,
+      seed: Math.floor(Math.random() * 2000000000),
+      version: 1,
+      versionNonce: Math.floor(Math.random() * 2000000000),
+      isDeleted: false,
+      boundElements: null,
+      updated: Date.now(),
+      link: null,
+      locked: false,
+      status: 'saved',
+      fileId,
+      scale: [1, 1],
+      customData: { dkFormula: latex, dkFormulaColor: color }
+    };
+
+    excalidrawApi.updateScene({
+      elements: [...elements, imageEl],
+      appState: { selectedElementIds: { [newId]: true } }
+    });
+    excalidrawApi.setActiveTool({ type: 'selection' });
+    scheduleAutosave();
+  }
+
+  function insertNativeVectorGroup(builderFn) {
+    if (!excalidrawApi || typeof builderFn !== 'function') return;
+    const st = excalidrawApi.getAppState() || {};
+    const elements = excalidrawApi.getSceneElements() || [];
+    const center = getViewportSceneCenter();
+    const strokeColor = st.currentItemStrokeColor || '#1e1e1e';
+    const strokeWidth = st.currentItemStrokeWidth || 2;
+    const fontFamily = st.currentItemFontFamily || excalidrawMod?.FONT_FAMILY?.Helvetica || 2;
+
+    const created = builderFn({
+      center,
+      strokeColor,
+      strokeWidth,
+      fontFamily,
+      excalidrawMod
+    });
+    if (!Array.isArray(created) || created.length === 0) return;
+
+    const selectedMap = {};
+    created.forEach((el) => {
+      if (el && el.id) selectedMap[el.id] = true;
+    });
+
+    excalidrawApi.updateScene({
+      elements: [...elements, ...created],
+      appState: { selectedElementIds: selectedMap }
+    });
+    excalidrawApi.setActiveTool({ type: 'selection' });
+    scheduleAutosave();
+  }
+
+  let stemPicker = null;
+  let geometry3dPicker = null;
+  let graphPlotterPicker = null;
+  let chartBuilderPicker = null;
+
+  function closeAllStemPanels(except = null) {
+    if (except !== 'symbols') stemPicker?.close();
+    if (except !== '3d') geometry3dPicker?.close();
+    if (except !== 'graph') graphPlotterPicker?.close();
+    if (except !== 'chart') chartBuilderPicker?.close();
+  }
+
+  function isAnyStemPanelOpen() {
+    return Boolean(
+      stemPicker?.isOpen() ||
+        geometry3dPicker?.isOpen() ||
+        graphPlotterPicker?.isOpen() ||
+        chartBuilderPicker?.isOpen()
+    );
+  }
+
+  function openStemForBoard(opts = {}) {
+    if (!stemPicker) return;
+    closeAllStemPanels('symbols');
+    const selectedFormula = !opts?.mode ? getSelectedFormulaElement() : null;
+    if (selectedFormula) {
+      stemPicker.open({
+        mode: 'formula',
+        latex: selectedFormula.customData.dkFormula,
+        edit: { elementId: selectedFormula.id }
+      });
+      return;
+    }
+    stemPicker.toggle(opts);
+  }
+
+  function toggleGeometry3d() {
+    if (!geometry3dPicker) return;
+    if (geometry3dPicker.isOpen()) {
+      geometry3dPicker.close();
+    } else {
+      closeAllStemPanels('3d');
+      geometry3dPicker.open();
+    }
+  }
+
+  function toggleGraphPlotter() {
+    if (!graphPlotterPicker) return;
+    if (graphPlotterPicker.isOpen()) {
+      graphPlotterPicker.close();
+    } else {
+      closeAllStemPanels('graph');
+      graphPlotterPicker.open();
+    }
+  }
+
+  function toggleChartBuilder() {
+    if (!chartBuilderPicker) return;
+    if (chartBuilderPicker.isOpen()) {
+      chartBuilderPicker.close();
+    } else {
+      closeAllStemPanels('chart');
+      chartBuilderPicker.open();
+    }
+  }
+
+  stemPicker = createStemPicker(stageEl, {
+    showFormulaColor: true,
+    onInsertSymbol: (sym) => insertSymbolOnBoard(sym),
+    onInsertFormula: (latex, meta) => insertFormulaOnBoard(latex, meta),
+    onVisibilityChange: () => syncCustomToolbarGroups()
+  });
+
+  geometry3dPicker = createGeometry3dPicker(stageEl, {
+    onInsertElements: (builder) => insertNativeVectorGroup(builder),
+    onVisibilityChange: () => syncCustomToolbarGroups()
+  });
+
+  graphPlotterPicker = createGraphPlotterPicker(stageEl, {
+    onInsertElements: (builder) => insertNativeVectorGroup(builder),
+    onVisibilityChange: () => syncCustomToolbarGroups()
+  });
+
+  chartBuilderPicker = createChartBuilderPicker(stageEl, {
+    onInsertElements: (builder) => insertNativeVectorGroup(builder),
+    onVisibilityChange: () => syncCustomToolbarGroups()
+  });
+
   // Floating Classroom Widgets (Note Box N & Mini Timer M)
   const teacherWidgets = createTeacherWidgets(stageEl, {
     scopeKey: `board:${boardSlug}`,
+    onOpenStemPicker: (opts) => {
+      closeAllStemPanels('symbols');
+      stemPicker.open(opts);
+    },
     onWidgetStateChange: (next) => {
       widgetState = next || { noteOpen: false, timerOpen: false };
       syncInjectedMenuStates();
@@ -711,6 +1020,23 @@ export function mountWhiteboardPresenter(
       hlBtn.setAttribute('aria-pressed', String(!dkLaserOn && highlighterActive));
     }
 
+    // Main toolbar STEM dropdown group active state & dropdown visibility
+    const stemWrap = stageEl.querySelector('[data-wb-tb-group="stem"]');
+    if (stemWrap) {
+      const anyStemOpen = isAnyStemPanelOpen();
+      const trig = stemWrap.querySelector('.wb-tb-trigger');
+      const menu = stemWrap.querySelector('.wb-tb-dropdown');
+      trig?.classList.toggle('is-active', anyStemOpen || openCustomGroup === 'stem');
+      trig?.setAttribute('aria-expanded', String(openCustomGroup === 'stem'));
+      if (menu) {
+        menu.classList.toggle('is-open', openCustomGroup === 'stem');
+        menu.querySelector('[data-wb-drop-item="stem-symbols"]')?.classList.toggle('dropdown-menu-item--selected', Boolean(stemPicker?.isOpen()));
+        menu.querySelector('[data-wb-drop-item="stem-3d"]')?.classList.toggle('dropdown-menu-item--selected', Boolean(geometry3dPicker?.isOpen()));
+        menu.querySelector('[data-wb-drop-item="stem-graph"]')?.classList.toggle('dropdown-menu-item--selected', Boolean(graphPlotterPicker?.isOpen()));
+        menu.querySelector('[data-wb-drop-item="stem-chart"]')?.classList.toggle('dropdown-menu-item--selected', Boolean(chartBuilderPicker?.isOpen()));
+      }
+    }
+
     // Laser Tools group active state & dropdown visibility
     const laserWrap = stageEl.querySelector('[data-wb-tb-group="laser"]');
     if (laserWrap) {
@@ -889,6 +1215,91 @@ export function mountWhiteboardPresenter(
       laserWrap.appendChild(trig);
       laserWrap.appendChild(dropdown);
       textLabel.insertAdjacentElement('afterend', laserWrap);
+    }
+
+    // 4B. Inject unified "STEM" dropdown right after Text tool (before Laser Tools)
+    if (textLabel && textLabel.parentElement && !stageEl.querySelector('[data-wb-tb-group="stem"]')) {
+      const stemWrap = document.createElement('div');
+      stemWrap.className = 'wb-tb-group wb-tb-stem';
+      stemWrap.dataset.wbTbGroup = 'stem';
+
+      const trig = document.createElement('button');
+      trig.type = 'button';
+      trig.className = 'ToolIcon_type_button ToolIcon_size_medium wb-tb-trigger';
+      trig.title = 'STEM Tools (K / J / Y / B)';
+      trig.setAttribute('aria-label', 'STEM Tools');
+      trig.setAttribute('aria-haspopup', 'menu');
+      trig.setAttribute('aria-expanded', 'false');
+      trig.innerHTML = `<div class="ToolIcon__icon">${ICON_STEM_SIGMA}</div>`;
+      trig.addEventListener('pointerdown', (e) => {
+        // Keep Excalidraw active text textarea focused when opening STEM menu
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      trig.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeExtraToolsDropdown();
+        setOpenCustomGroup(openCustomGroup === 'stem' ? null : 'stem');
+      });
+
+      const dropdown = document.createElement('div');
+      dropdown.className = 'dropdown-menu wb-tb-dropdown';
+      dropdown.setAttribute('role', 'menu');
+      const container = document.createElement('div');
+      container.className = 'dropdown-menu-container';
+
+      const symItem = createToolbarDropdownItem({
+        id: 'stem-symbols',
+        label: 'Ký hiệu & Công thức',
+        shortcut: 'K',
+        iconSvg: ICON_STEM_SIGMA,
+        selected: Boolean(stemPicker?.isOpen()),
+        onClick: () => openStemForBoard()
+      });
+      symItem.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      container.appendChild(symItem);
+
+      container.appendChild(
+        createToolbarDropdownItem({
+          id: 'stem-3d',
+          label: 'Hình học không gian 3D',
+          shortcut: 'J',
+          iconSvg: ICON_STEM_3D,
+          selected: Boolean(geometry3dPicker?.isOpen()),
+          onClick: () => toggleGeometry3d()
+        })
+      );
+
+      container.appendChild(
+        createToolbarDropdownItem({
+          id: 'stem-graph',
+          label: 'Đồ thị hàm số y = f(x)',
+          shortcut: 'Y',
+          iconSvg: ICON_STEM_GRAPH,
+          selected: Boolean(graphPlotterPicker?.isOpen()),
+          onClick: () => toggleGraphPlotter()
+        })
+      );
+
+      container.appendChild(
+        createToolbarDropdownItem({
+          id: 'stem-chart',
+          label: 'Biểu đồ Line / Bar / Pie',
+          shortcut: 'B',
+          iconSvg: ICON_STEM_CHART,
+          selected: Boolean(chartBuilderPicker?.isOpen()),
+          onClick: () => toggleChartBuilder()
+        })
+      );
+
+      dropdown.appendChild(container);
+      stemWrap.appendChild(trig);
+      stemWrap.appendChild(dropdown);
+      textLabel.insertAdjacentElement('afterend', stemWrap);
     }
 
     // 5. Inject "Highlighter" button in place of the hidden Image button on main toolbar
@@ -1136,6 +1547,7 @@ export function mountWhiteboardPresenter(
       excalidrawApi.updateScene({ appState: appPatch });
     }
     teacherWidgets.refreshTheme();
+    stemPicker?.refreshTheme();
     if (spotlightOn) updateSpotlightVisual();
     if (renderReactFn) renderReactFn();
     onThemeSync?.(activeTheme);
@@ -1251,6 +1663,12 @@ export function mountWhiteboardPresenter(
 
     const key = e.key;
     if (key === 'Escape') {
+      if (isAnyStemPanelOpen()) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeAllStemPanels();
+        return;
+      }
       if (openCustomGroup) {
         e.preventDefault();
         e.stopPropagation();
@@ -1330,6 +1748,26 @@ export function mountWhiteboardPresenter(
         e.preventDefault();
         e.stopPropagation();
         teacherWidgets.toggleNoteBox();
+        break;
+      case 'k':
+        e.preventDefault();
+        e.stopPropagation();
+        openStemForBoard();
+        break;
+      case 'j':
+        e.preventDefault();
+        e.stopPropagation();
+        toggleGeometry3d();
+        break;
+      case 'y':
+        e.preventDefault();
+        e.stopPropagation();
+        toggleGraphPlotter();
+        break;
+      case 'b':
+        e.preventDefault();
+        e.stopPropagation();
+        toggleChartBuilder();
         break;
       case 'm':
         e.preventDefault();
@@ -1502,6 +1940,10 @@ export function mountWhiteboardPresenter(
       domObserver = null;
     }
     teacherWidgets.destroy();
+    stemPicker?.destroy();
+    geometry3dPicker?.destroy();
+    graphPlotterPicker?.destroy();
+    chartBuilderPicker?.destroy();
     spotlightEl.remove();
     dkLaserCanvas.remove();
     if (saveTimer) {

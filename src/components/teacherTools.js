@@ -5,6 +5,9 @@
  * Unified Undo stack (Ctrl+Z) for Pen, Rectangle, Text Note, and Text Highlighter.
  */
 
+import { getLoadedKatex, hasMathExpression, loadKatex, renderMixedMathHtmlSync } from '../lib/stemMath.js';
+import { insertTextIntoInput } from './stemPicker.js';
+
 function readAccentColor() {
   const val = getComputedStyle(document.documentElement)
     .getPropertyValue('--accent')
@@ -387,8 +390,10 @@ export function createTeacherTools(
       const scale = item.fontScale || 1;
       const fontSize = computeTextFontPx(w, scale);
 
+      const rawText = item.lines.join('\n');
+      const isMath = hasMathExpression(rawText);
       const node = document.createElement('div');
-      node.className = `teacher-text-node${selectedItem === item ? ' is-selected' : ''}`;
+      node.className = `teacher-text-node${selectedItem === item ? ' is-selected' : ''}${isMath ? ' has-math' : ''}`;
       node.style.left = `${item.x * 100}%`;
       node.style.top = `${item.y * 100}%`;
       node.style.fontSize = `${fontSize}px`;
@@ -396,7 +401,17 @@ export function createTeacherTools(
 
       const contentSpan = document.createElement('span');
       contentSpan.className = 'teacher-text-content';
-      contentSpan.textContent = item.lines.join('\n');
+      if (isMath) {
+        const loadedKatex = getLoadedKatex();
+        if (loadedKatex) {
+          contentSpan.innerHTML = renderMixedMathHtmlSync(loadedKatex, rawText);
+        } else {
+          contentSpan.textContent = rawText;
+          loadKatex().then(() => renderTextNodes());
+        }
+      } else {
+        contentSpan.textContent = rawText;
+      }
       node.appendChild(contentSpan);
 
       const textDelBtn = document.createElement('button');
@@ -789,8 +804,9 @@ export function createTeacherTools(
         if (mode === 'text') setMode('off');
       }
     });
-    ta.addEventListener('blur', () => {
+    ta.addEventListener('blur', (e) => {
       if (!activeTextEditor) return;
+      if (e.relatedTarget && e.relatedTarget.closest?.('.stem-picker-panel')) return;
       commitActiveTextEditor(true);
       if (mode === 'text') setMode('off');
     });
@@ -878,7 +894,7 @@ export function createTeacherTools(
   }
 
   function onPointerDown(e) {
-    if (e.target && e.target.closest?.('.teacher-text-input, .teacher-text-node, .teacher-ann-del, .teacher-widgets-layer')) return;
+    if (e.target && e.target.closest?.('.teacher-text-input, .teacher-text-node, .teacher-ann-del, .teacher-widgets-layer, .stem-picker-panel')) return;
     if (isOverChrome(e.target)) return;
     if (e.button !== undefined && e.button !== 0) return;
 
@@ -1257,6 +1273,39 @@ export function createTeacherTools(
     getCount: () => annotations.length,
     getAnnotations,
     setAnnotations,
+    insertTextAtEditorOrStage(text) {
+      const str = String(text || '');
+      if (!str) return false;
+      if (activeTextEditor && activeTextEditor.el) {
+        return insertTextIntoInput(activeTextEditor.el, str);
+      }
+      const rect = drawEl.getBoundingClientRect();
+      const nx = 0.44 + (Math.random() - 0.5) * 0.06;
+      const ny = 0.42 + (Math.random() - 0.5) * 0.06;
+      openTextEditor(nx * rect.width, ny * rect.height, nx, ny, str, textScale);
+      return true;
+    },
+    insertFormulaAnnotation(latex) {
+      const expr = String(latex || '').trim();
+      if (!expr) return false;
+      if (activeTextEditor && activeTextEditor.el) {
+        return insertTextIntoInput(activeTextEditor.el, `$${expr}$`);
+      }
+      const nx = 0.42 + (Math.random() - 0.5) * 0.06;
+      const ny = 0.42 + (Math.random() - 0.5) * 0.06;
+      const created = {
+        type: 'text',
+        x: nx,
+        y: ny,
+        lines: [`$$${expr}$$`],
+        fontScale: Math.max(0.95, textScale)
+      };
+      annotations.push(created);
+      selectedItem = created;
+      redraw();
+      notify();
+      return true;
+    },
     isPointOnDraggable(e) {
       if (mode !== 'off') return false;
       if (drawEl !== stageEl && !drawEl.contains(e.target)) return false;

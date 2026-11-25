@@ -1,7 +1,7 @@
 import { escapeHtml } from '../lib/markdown.js';
 import { BRAND_CONFIG } from '../lib/brand.js';
 import { getCustomRootFolders, getPublicDecks, getRootFolderMeta, getSubfolders } from '../lib/decks.js';
-import { ALL_COURSE_BOOKS } from '../lib/books.js';
+import { getAllCourseBooks, fetchAllCourseBooks } from '../lib/books.js';
 import { getAllBoards, fetchAllBoards, formatBoardDate } from '../lib/boards.js';
 import { THEMES, applyGrid, applyTheme, getLogoForTheme, getSavedGrid, getSavedTheme, getThemeInfo } from '../lib/themes.js';
 
@@ -24,6 +24,8 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
   let createBoardOpen = false;
   let createBoardError = '';
   let createBoardBusy = false;
+  let uploadingDocs = false;
+  let uploadStatusText = '';
   let renameTarget = null; // { kind: 'folder'|'subfolder'|'deck'|'board', folderId, parentFolder, subfolderId, relDir, slug, title, sub, code }
   let renameError = '';
   let renameBusy = false;
@@ -72,22 +74,26 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
     };
   }
 
-  const courseBookItems = ALL_COURSE_BOOKS.map((book) => {
-    const srcFmt = (book.sourceFormat || book.format || 'pdf').toLowerCase();
-    const isWord = srcFmt === 'docx';
-    const isPpt = srcFmt === 'pptx' || srcFmt === 'ppt';
-    return {
-      kind: 'pdf',
-      id: book.id,
-      title: book.title,
-      badge: isWord ? 'DOCX · WORD' : isPpt ? 'PPTX · SLIDE' : `PDF · ${book.level}`,
-      meta: book.type,
-      href: `?book=${encodeURIComponent(book.id)}#1`,
-      dotA: isWord ? '#1D4ED8' : isPpt ? '#C2410C' : '#00338D',
-      dotB: isWord ? '#3B82F6' : isPpt ? '#F97316' : '#C60C30',
-      isCustomPdf: Boolean(book.isCustom)
-    };
-  });
+  function mapCourseBookItems(books) {
+    return books.map((book) => {
+      const srcFmt = (book.sourceFormat || book.format || 'pdf').toLowerCase();
+      const isWord = srcFmt === 'docx';
+      const isPpt = srcFmt === 'pptx' || srcFmt === 'ppt';
+      return {
+        kind: 'pdf',
+        id: book.id,
+        title: book.title,
+        badge: isWord ? 'DOCX · WORD' : isPpt ? 'PPTX · SLIDE' : `PDF · ${book.level}`,
+        meta: book.type,
+        href: `?book=${encodeURIComponent(book.id)}#1`,
+        dotA: isWord ? '#1D4ED8' : isPpt ? '#C2410C' : '#00338D',
+        dotB: isWord ? '#3B82F6' : isPpt ? '#F97316' : '#C60C30',
+        isCustomPdf: Boolean(book.isCustom)
+      };
+    });
+  }
+
+  const courseBookItems = mapCourseBookItems(getAllCourseBooks());
 
   const customFolders = getCustomRootFolders().map((cf, idx) =>
     buildFolderEntry(
@@ -433,9 +439,9 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
             <span class="lib-sec-meta">${folder.items.length} MỤC · TRANG ${cards.safePage}/${cards.totalPages}</span>
             ${
               folder.id === 'course-books'
-                ? `<label class="ctrl-btn is-active pdf-upload-btn" id="doc-add-label" title="Thêm tài liệu PDF, Word (.docx, .doc) hoặc PowerPoint (.pptx, .ppt) vào Documents">
-                    <span id="doc-add-label-text">+ Add Document</span>
-                    <input type="file" id="ebook-add-input" accept=".pdf,.docx,.doc,.pptx,.ppt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple hidden>
+                ? `<label class="ctrl-btn is-active pdf-upload-btn ${uploadingDocs ? 'is-busy' : ''}" id="doc-add-label" title="Thêm tài liệu PDF, Word (.docx, .doc) hoặc PowerPoint (.pptx, .ppt) vào Documents">
+                    <span id="doc-add-label-text">${escapeHtml(uploadStatusText || '+ Add Document')}</span>
+                    <input type="file" id="ebook-add-input" accept=".pdf,.docx,.doc,.pptx,.ppt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation" multiple hidden ${uploadingDocs ? 'disabled' : ''}>
                   </label>`
                 : folder.id === 'whiteboards'
                   ? `<button type="button" class="ctrl-btn is-active" data-action="open-create-board" title="Tạo bảng vô cực Whiteboard mới">+ New Board</button>`
@@ -726,6 +732,7 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
             <div class="lib-sc-col">
               <div class="lib-sc-group">Widgets &amp; Thao tác</div>
               <div class="lib-sc-row"><kbd>N</kbd><span>Tạo Floating Note Box (Note 1, 2...)</span></div>
+              <div class="lib-sc-row"><kbd>K</kbd><span>Bảng ký hiệu &amp; công thức STEM (Toán / Hóa / Lý)</span></div>
               <div class="lib-sc-row"><kbd>M</kbd><span>Mở Mini Timer (tự tắt khi đổi trang)</span></div>
               <div class="lib-sc-row"><kbd>Ctrl + Cuộn</kbd><span>Đổi cỡ Pen / Box / Text · Zoom PDF</span></div>
               <div class="lib-sc-row"><kbd>Ctrl + Z</kbd><span>Hoàn tác nét vẽ, chữ, highlight</span></div>
@@ -821,15 +828,19 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
     });
 
     rootEl.querySelector('#ebook-add-input')?.addEventListener('change', async (e) => {
-      const files = Array.from(e.target.files || []);
-      if (files.length === 0) return;
-      const labelText = rootEl.querySelector('#doc-add-label-text');
-      for (const file of files) {
-        try {
-          if (labelText) {
-            const isOffice = /\.(docx|doc|pptx|ppt)$/i.test(file.name);
-            labelText.textContent = isOffice ? 'Converting...' : 'Uploading...';
-          }
+      const inputEl = e.currentTarget;
+      const files = Array.from(inputEl.files || []);
+      if (files.length === 0 || uploadingDocs) return;
+      uploadingDocs = true;
+      let addedCount = 0;
+      try {
+        for (let i = 0; i < files.length; i += 1) {
+          const file = files[i];
+          const isOffice = /\.(docx|doc|pptx|ppt)$/i.test(file.name);
+          const progressSuffix = files.length > 1 ? ` (${i + 1}/${files.length})` : '';
+          uploadStatusText = `${isOffice ? 'Converting' : 'Uploading'}${progressSuffix}...`;
+          const labelText = rootEl.querySelector('#doc-add-label-text');
+          if (labelText) labelText.textContent = uploadStatusText;
           const resp = await fetch('/@api/documents/add', {
             method: 'POST',
             headers: {
@@ -841,17 +852,29 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
           });
           const data = await resp.json().catch(() => ({}));
           if (!resp.ok || !data.ok) {
-            if (labelText) labelText.textContent = '+ Add Document';
             window.alert(data.error || `Không thể thêm tài liệu "${file.name}".`);
-            return;
+            break;
           }
-        } catch {
-          if (labelText) labelText.textContent = '+ Add Document';
-          window.alert('Lỗi kết nối localhost dev server khi thêm tài liệu.');
-          return;
+          addedCount += 1;
+        }
+      } catch {
+        window.alert('Lỗi kết nối localhost dev server khi thêm tài liệu.');
+      } finally {
+        uploadingDocs = false;
+        uploadStatusText = '';
+        inputEl.value = '';
+        const freshBooks = await fetchAllCourseBooks();
+        if (!unmounted) {
+          const docsFolder = FOLDERS.find((f) => f.id === 'course-books');
+          if (docsFolder) {
+            docsFolder.items = mapCourseBookItems(freshBooks);
+            if (addedCount > 0) {
+              folderPages['course-books'] = Math.max(1, Math.ceil(docsFolder.items.length / ITEMS_PER_PAGE));
+            }
+          }
+          render();
         }
       }
-      window.location.reload();
     });
 
     rootEl.querySelectorAll('[data-rename-kind]').forEach((btn) => {
@@ -1070,7 +1093,14 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
             window.alert(data.error || 'Không thể xóa tài liệu.');
             return;
           }
-          window.location.reload();
+          const freshBooks = await fetchAllCourseBooks();
+          if (!unmounted) {
+            const docsFolder = FOLDERS.find((f) => f.id === 'course-books');
+            if (docsFolder) {
+              docsFolder.items = mapCourseBookItems(freshBooks);
+            }
+            render();
+          }
         } catch {
           window.alert('Lỗi kết nối localhost dev server.');
         }
@@ -1255,6 +1285,15 @@ export function mountLauncher(rootEl, { onOpenDeck, onOpenBook, onOpenLocalPdf, 
     const wbFolder = FOLDERS.find((f) => f.id === 'whiteboards');
     if (wbFolder) {
       wbFolder.items = mapBoardItems(freshBoards);
+      render();
+    }
+  });
+
+  fetchAllCourseBooks().then((freshBooks) => {
+    if (unmounted) return;
+    const docsFolder = FOLDERS.find((f) => f.id === 'course-books');
+    if (docsFolder) {
+      docsFolder.items = mapCourseBookItems(freshBooks);
       render();
     }
   });

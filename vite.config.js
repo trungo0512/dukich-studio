@@ -17,6 +17,7 @@ function watchDecksPlugin() {
       server.watcher.add(decksRootPath);
 
       const whiteboardsDir = path.resolve(decksRootPath, 'whiteboards').toLowerCase();
+      const ebooksWatchDir = path.resolve(decksRootPath, 'ebooks').toLowerCase();
 
       const invalidateDeckModules = () => {
         for (const [id, mod] of server.moduleGraph.idToModuleMap.entries()) {
@@ -27,15 +28,20 @@ function watchDecksPlugin() {
         }
       };
 
-      const isInsideWhiteboards = (resolved) => {
+      const isIgnoredManagedDir = (resolved) => {
         const low = resolved.toLowerCase();
-        return low === whiteboardsDir || low.startsWith(whiteboardsDir + path.sep);
+        return (
+          low === whiteboardsDir ||
+          low.startsWith(whiteboardsDir + path.sep) ||
+          low === ebooksWatchDir ||
+          low.startsWith(ebooksWatchDir + path.sep)
+        );
       };
 
       const handleChange = (filePath) => {
         const resolved = path.resolve(filePath);
         if (!resolved.toLowerCase().startsWith(decksDir)) return;
-        if (isInsideWhiteboards(resolved)) return;
+        if (isIgnoredManagedDir(resolved)) return;
         invalidateDeckModules();
         if (Date.now() <= suppressFullReloadUntil) return;
         server.ws.send({ type: 'full-reload' });
@@ -46,12 +52,8 @@ function watchDecksPlugin() {
       server.watcher.on('change', (filePath) => {
         const resolved = path.resolve(filePath);
         if (!resolved.toLowerCase().startsWith(decksDir)) return;
-        if (isInsideWhiteboards(resolved)) return;
+        if (isIgnoredManagedDir(resolved)) return;
         const base = path.basename(resolved).toLowerCase();
-        if (base === 'ebooks.json') {
-          handleChange(filePath);
-          return;
-        }
         if (base === 'slides.json') {
           invalidateDeckModules();
           if (Date.now() <= suppressFullReloadUntil) return;
@@ -598,7 +600,35 @@ function createFolderApiPlugin() {
           return;
         }
 
-        // 2. ADD DOCUMENT (PDF / DOCX / DOC / PPTX / PPT - streaming to decks/ebooks/ with hybrid Office->PDF convert)
+        // 2A. LIST CUSTOM DOCUMENTS (live from disk so uploading/deleting never triggers Vite HMR reload)
+        if (urlPath === '/@api/documents/list' || urlPath === '/@api/ebooks/list') {
+          if (req.method !== 'GET') {
+            res.statusCode = 405;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.end(JSON.stringify({ ok: false, error: 'Method not allowed' }));
+            return;
+          }
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-store');
+          let list = [];
+          if (fs.existsSync(ebooksIndex)) {
+            try {
+              const parsed = JSON.parse(fs.readFileSync(ebooksIndex, 'utf8'));
+              if (Array.isArray(parsed)) {
+                list = parsed.filter((item) => {
+                  if (!item || !item.id || !item.filename) return false;
+                  const candidate = path.resolve(ebooksDir, item.filename);
+                  return candidate.startsWith(ebooksDir + path.sep) && fs.existsSync(candidate);
+                });
+              }
+            } catch {}
+          }
+          res.statusCode = 200;
+          res.end(JSON.stringify({ ok: true, books: list }));
+          return;
+        }
+
+        // 2. ADD DOCUMENT (PDF / DOCX / DOC / PPTX / PPT - stream to temp first, then commit to decks/ebooks/ + ebooks.json)
         if (urlPath === '/@api/ebooks/add' || urlPath === '/@api/documents/add') {
           if (req.method !== 'POST') {
             res.statusCode = 405;
@@ -640,77 +670,132 @@ function createFolderApiPlugin() {
               return;
             }
 
-            const ws = fs.createWriteStream(destPath);
+            const tmpUploadPath = path.join(
+              os.tmpdir(),
+              `dk-upload-${id}-${Math.random().toString(36).slice(2, 6)}${ext}`
+            );
+            const cleanupTmp = () => {
+              try {
+                if (fs.existsSync(tmpUploadPath)) fs.unlinkSync(tmpUploadPath);
+              } catch {}
+            };
+            const moveFileSafe = (src, dest) => {
+              try {
+                fs.renameSync(src, dest);
+              } catch (err) {
+                if (err && err.code === 'EXDEV') {
+                  fs.copyFileSync(src, dest);
+                  fs.unlinkSync(src);
+                } else {
+                  throw err;
+                }
+              }
+            };
+
+            let reqAborted = false;
+            let responded = false;
+            const sendJson = (code, payload) => {
+              if (responded || res.writableEnded) return;
+              responded = true;
+              res.statusCode = code;
+              res.end(JSON.stringify(payload));
+            };
+
+            const ws = fs.createWriteStream(tmpUploadPath);
+            req.on('aborted', () => {
+              reqAborted = true;
+              ws.destroy();
+              cleanupTmp();
+            });
+            req.on('error', () => {
+              reqAborted = true;
+              ws.destroy();
+              cleanupTmp();
+            });
+
             req.pipe(ws);
             ws.on('finish', async () => {
-              let finalFilename = rawFilename;
-              let finalFormat = ext.slice(1); // 'pdf' | 'docx' | 'doc' | 'pptx' | 'ppt'
-              let sourceFormat = finalFormat;
-              let levelTag = finalFormat === 'doc' ? 'DOCX' : finalFormat === 'ppt' ? 'PPTX' : finalFormat.toUpperCase();
-              let typeLabel =
-                finalFormat === 'pdf'
-                  ? 'PDF Document'
-                  : finalFormat === 'docx' || finalFormat === 'doc'
-                    ? 'Word Document'
-                    : 'Presentation';
+              if (reqAborted || !req.complete) {
+                cleanupTmp();
+                return;
+              }
+              try {
+                if (!fs.existsSync(tmpUploadPath) || fs.statSync(tmpUploadPath).size === 0) {
+                  cleanupTmp();
+                  sendJson(400, { ok: false, error: 'File rỗng hoặc upload bị gián đoạn.' });
+                  return;
+                }
 
-              // Hybrid Office conversion: PPTX/PPT auto-converts via PowerPoint COM or LibreOffice; DOCX converts only if LibreOffice exists (else instant JS A4 viewer)
-              if (ext === '.docx' || ext === '.doc' || ext === '.pptx' || ext === '.ppt') {
-                const kind = ext === '.docx' || ext === '.doc' ? 'word' : 'ppt';
-                const pdfPath = path.resolve(ebooksDir, `${id}.pdf`);
-                const converted = await convertOfficeFileToPdf(destPath, pdfPath, kind);
-                if (converted) {
-                  try {
-                    fs.unlinkSync(destPath);
-                  } catch {}
-                  finalFilename = `${id}.pdf`;
-                  finalFormat = 'pdf';
-                  sourceFormat = kind === 'word' ? 'docx' : 'pptx';
-                  levelTag = kind === 'word' ? 'DOCX' : 'PPTX';
-                  typeLabel = kind === 'word' ? 'Word Document' : 'Presentation';
-                } else if (ext === '.doc' || ext === '.ppt') {
-                  try {
-                    fs.unlinkSync(destPath);
-                  } catch {}
-                  res.statusCode = 400;
-                  res.end(
-                    JSON.stringify({
+                let finalFilename = rawFilename;
+                let finalFormat = ext.slice(1); // 'pdf' | 'docx' | 'doc' | 'pptx' | 'ppt'
+                let sourceFormat = finalFormat;
+                let levelTag = finalFormat === 'doc' ? 'DOCX' : finalFormat === 'ppt' ? 'PPTX' : finalFormat.toUpperCase();
+                let typeLabel =
+                  finalFormat === 'pdf'
+                    ? 'PDF Document'
+                    : finalFormat === 'docx' || finalFormat === 'doc'
+                      ? 'Word Document'
+                      : 'Presentation';
+
+                // Hybrid Office conversion: PPTX/PPT auto-converts via PowerPoint COM or LibreOffice; DOCX converts only if LibreOffice exists (else instant JS A4 viewer)
+                if (ext === '.docx' || ext === '.doc' || ext === '.pptx' || ext === '.ppt') {
+                  const kind = ext === '.docx' || ext === '.doc' ? 'word' : 'ppt';
+                  const pdfPath = path.resolve(ebooksDir, `${id}.pdf`);
+                  const converted = await convertOfficeFileToPdf(tmpUploadPath, pdfPath, kind);
+                  if (converted) {
+                    cleanupTmp();
+                    finalFilename = `${id}.pdf`;
+                    finalFormat = 'pdf';
+                    sourceFormat = kind === 'word' ? 'docx' : 'pptx';
+                    levelTag = kind === 'word' ? 'DOCX' : 'PPTX';
+                    typeLabel = kind === 'word' ? 'Word Document' : 'Presentation';
+                  } else if (ext === '.doc' || ext === '.ppt') {
+                    cleanupTmp();
+                    sendJson(400, {
                       ok: false,
                       error:
                         'File định dạng cũ (.doc/.ppt) cần LibreOffice để chuyển đổi. Vui lòng lưu sang .docx/.pptx hoặc .pdf.'
-                    })
-                  );
-                  return;
+                    });
+                    return;
+                  } else {
+                    moveFileSafe(tmpUploadPath, destPath);
+                  }
+                } else {
+                  moveFileSafe(tmpUploadPath, destPath);
                 }
-              }
 
-              let list = [];
-              if (fs.existsSync(ebooksIndex)) {
-                try {
-                  const parsed = JSON.parse(fs.readFileSync(ebooksIndex, 'utf8'));
-                  if (Array.isArray(parsed)) list = parsed;
-                } catch {}
+                let list = [];
+                if (fs.existsSync(ebooksIndex)) {
+                  try {
+                    const parsed = JSON.parse(fs.readFileSync(ebooksIndex, 'utf8'));
+                    if (Array.isArray(parsed)) list = parsed;
+                  } catch {}
+                }
+                const entry = {
+                  id,
+                  level: levelTag,
+                  type: typeLabel,
+                  format: finalFormat,
+                  sourceFormat,
+                  title,
+                  filename: finalFilename,
+                  isCustom: true,
+                  url: `/@course-pdf/${id}`
+                };
+                list.push(entry);
+                const tmpIndex = `${ebooksIndex}.tmp`;
+                fs.writeFileSync(tmpIndex, JSON.stringify(list, null, 2) + '\n', 'utf8');
+                fs.renameSync(tmpIndex, ebooksIndex);
+                invalidateLib('/src/lib/books.js');
+                sendJson(200, { ok: true, book: entry });
+              } catch (err) {
+                cleanupTmp();
+                sendJson(500, { ok: false, error: err?.message || 'Lỗi lưu tài liệu.' });
               }
-              const entry = {
-                id,
-                level: levelTag,
-                type: typeLabel,
-                format: finalFormat,
-                sourceFormat,
-                title,
-                filename: finalFilename,
-                isCustom: true,
-                url: `/@course-pdf/${id}`
-              };
-              list.push(entry);
-              fs.writeFileSync(ebooksIndex, JSON.stringify(list, null, 2) + '\n', 'utf8');
-              invalidateLib('/src/lib/books.js');
-              res.statusCode = 200;
-              res.end(JSON.stringify({ ok: true, book: entry }));
             });
             ws.on('error', (err) => {
-              res.statusCode = 500;
-              res.end(JSON.stringify({ ok: false, error: err?.message || 'Lỗi lưu tài liệu.' }));
+              cleanupTmp();
+              sendJson(500, { ok: false, error: err?.message || 'Lỗi lưu tài liệu.' });
             });
           } catch (err) {
             res.statusCode = 500;
@@ -1310,7 +1395,7 @@ function createFolderApiPlugin() {
               const initialScene = {
                 type: 'excalidraw',
                 version: 2,
-                source: 'studio-deck-whiteboard',
+                source: 'dukich-studio-whiteboard',
                 elements: [],
                 appState: {},
                 files: {}
@@ -1382,7 +1467,7 @@ function createFolderApiPlugin() {
               const sceneData = {
                 type: 'excalidraw',
                 version: 2,
-                source: 'studio-deck-whiteboard',
+                source: 'dukich-studio-whiteboard',
                 elements: liveElements,
                 appState,
                 files
@@ -1670,7 +1755,7 @@ export default defineConfig({
     strictPort: true,
     open: false,
     watch: {
-      ignored: ['**/decks/whiteboards/**']
+      ignored: ['**/decks/whiteboards/**', '**/decks/ebooks/**']
     }
   },
   preview: {

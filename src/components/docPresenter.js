@@ -3,6 +3,7 @@ import { BRAND_CONFIG } from '../lib/brand.js';
 import { THEMES, applyGrid, applyTheme, getSavedGrid, getSavedTheme } from '../lib/themes.js';
 import { createTeacherTools } from './teacherTools.js';
 import { createTeacherWidgets } from './teacherWidgets.js';
+import { createStemPicker } from './stemPicker.js';
 import { isWhiteboardOverlayOpen, mountFooterWhiteboardControl } from './whiteboardOverlay.js';
 
 const SESSION_DOC_ANNOTATIONS = new Map();
@@ -30,6 +31,7 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
   let activeToolMode = 'off';
   let teacherTools = null;
   let teacherWidgets = null;
+  let stemPicker = null;
   let pptxPreviewer = null;
   let docxPageEls = [];
   let pageObserver = null;
@@ -142,6 +144,11 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
                   <span class="dropup-num">▤</span>
                   <span class="dropup-text"><span class="dropup-title">Note Box</span></span>
                   <span class="tool-kbd">N</span>
+                </button>
+                <button type="button" class="dropup-item tool-item" data-widget-action="stem" role="menuitem">
+                  <span class="dropup-num">∑</span>
+                  <span class="dropup-text"><span class="dropup-title">STEM Symbols</span></span>
+                  <span class="tool-kbd">K</span>
                 </button>
                 <button type="button" class="dropup-item tool-item" data-widget-action="timer" role="menuitem">
                   <span class="dropup-num">◷</span>
@@ -300,6 +307,12 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
       } catch {}
       teacherWidgets = null;
     }
+    if (stemPicker) {
+      try {
+        stemPicker.destroy();
+      } catch {}
+      stemPicker = null;
+    }
     const targetOverlay = surfaceHostEl || stageEl;
     if (!targetOverlay) return;
 
@@ -316,8 +329,17 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
     }
 
     if (stageEl) {
+      stemPicker = createStemPicker(stageEl, {
+        showFormulaColor: false,
+        onInsertSymbol: (sym) => teacherTools?.insertTextAtEditorOrStage(sym),
+        onInsertFormula: (latex) => teacherTools?.insertFormulaAnnotation(latex),
+        onVisibilityChange: (open) => {
+          rootEl.querySelector('[data-widget-action="stem"]')?.classList.toggle('is-current', open);
+        }
+      });
       teacherWidgets = createTeacherWidgets(stageEl, {
         scopeKey: `doc:${doc.id || doc.title}:${currentPage}`,
+        onOpenStemPicker: (opts) => stemPicker?.open(opts),
         onWidgetStateChange: ({ noteOpen, timerOpen }) => {
           rootEl.querySelector('[data-widget-action="note"]')?.classList.toggle('is-current', noteOpen);
           rootEl.querySelector('[data-widget-action="timer"]')?.classList.toggle('is-current', timerOpen);
@@ -756,6 +778,12 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
     setToolsOpen(false);
   });
 
+  rootEl.querySelector('[data-widget-action="stem"]')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stemPicker?.toggle();
+    setToolsOpen(false);
+  });
+
   rootEl.querySelector('[data-widget-action="timer"]')?.addEventListener('click', (e) => {
     e.stopPropagation();
     teacherWidgets?.toggleTimer();
@@ -908,6 +936,11 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
         e.preventDefault();
         teacherWidgets?.toggleNoteBox();
         break;
+      case 'k':
+      case 'K':
+        e.preventDefault();
+        stemPicker?.toggle();
+        break;
       case 'm':
       case 'M':
         e.preventDefault();
@@ -921,7 +954,10 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
         }
         break;
       case 'Escape':
-        if (toolsOpen) {
+        if (stemPicker?.isOpen()) {
+          e.preventDefault();
+          stemPicker.close();
+        } else if (toolsOpen) {
           e.preventDefault();
           setToolsOpen(false);
         } else if (activeToolMode !== 'off') {
@@ -999,6 +1035,12 @@ export function mountDocPresenter(rootEl, doc, { onBackToLauncher }) {
         teacherWidgets.destroy();
       } catch {}
       teacherWidgets = null;
+    }
+    if (stemPicker) {
+      try {
+        stemPicker.destroy();
+      } catch {}
+      stemPicker = null;
     }
     wbFooterControl?.destroy();
     scrollAreaEl?.removeEventListener('mousedown', handlePanDown);

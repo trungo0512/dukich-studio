@@ -1,7 +1,7 @@
 {
   "name": "dukich-studio",
-  "version": "1.0.0",
-  "description": "Du Kich Studio - Local-first editorial slide presenter, document viewer (PDF/Word/PPTX), interactive question engine, and infinite whiteboard for teachers and presenters.",
+  "version": "1.1.0",
+  "description": "Du Kich Studio - Local-first editorial slide presenter, document viewer (PDF/Word/PPTX), interactive question engine, infinite whiteboard, and STEM teaching tools.",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -40,6 +40,7 @@
     "@excalidraw/excalidraw": "^0.18.1",
     "docx-preview": "^0.4.1",
     "jszip": "^3.10.2",
+    "katex": "^0.16.11",
     "pdfjs-dist": "^6.5.438",
     "pptx-preview": "^1.0.7",
     "react": "^18.3.1",
