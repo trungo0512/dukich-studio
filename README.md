@@ -30,15 +30,27 @@ No cloud lock-in, no subscriptions, no database setup. Your decks, documents, an
 
 ## Quick Start
 
-### Option A: Guided Setup with an AI Agent (Recommended for Teachers & Creators)
+No AI agent or terminal knowledge is required. Pick the option that fits you best:
 
-If you prefer not to edit config files manually, open this repository in **Antigravity, Claude Code, Cursor, Codex, or Windsurf** and send this single prompt:
+### Option 1: One-Click Start (No AI Agent, No Coding Required)
+
+1. Install **[Node.js LTS](https://nodejs.org/)** (v18 or newer, one-time install).
+2. Click the green **Code** button above -> **Download ZIP**, then extract the folder anywhere on your computer (for example `Documents/dukich-studio`).
+3. Double-click **`Start-Windows.bat`** (Windows) or **`Start-Mac.command`** (macOS).
+
+- First launch installs packages automatically (~20 seconds) and opens `http://localhost:5288/` in your browser.
+- Every launch after that opens in ~2 seconds. Keep the small terminal window open while presenting, and close it when finished.
+- **macOS first-time note:** If macOS blocks the script on first run, right-click `Start-Mac.command` -> **Open** -> **Open** (only needed once).
+
+### Option 2: Guided Setup with an AI Agent (Auto-Customize Brand & Palette)
+
+Want an AI assistant to customize your brand name, logo, and color palette automatically? Open this repository in **Antigravity, Claude Code, Cursor, Codex, or Windsurf** and send this single prompt:
 
 > *"Tải repo https://github.com/trungo0512/dukich-studio về máy (hoặc mở thư mục hiện tại), đọc `SETUP_AGENT.md` và tiến hành setup cho tôi."*
 
 Your AI Agent will automatically check Node.js, ask whether you want optional LibreOffice support for Word files, personalize your brand name, logo, and color palette, install packages, and start `http://localhost:5288/`.
 
-### Option B: Developer Setup
+### Option 3: Developer Setup (Terminal / Git)
 
 Requires **Node.js >= 18**.
 
@@ -88,6 +100,8 @@ dukich-studio/
 ├── brandsheet.html       # Interactive design system & color palette preview
 ├── DECK_GUIDE.md         # Slide & interactive question JSON schema reference
 ├── SETUP_AGENT.md        # Step-by-step Vietnamese onboarding script for AI Agents
+├── Start-Windows.bat     # 1-click launcher for Windows
+├── Start-Mac.command     # 1-click launcher for macOS
 └── vite.config.js        # Local file APIs & hybrid document conversion middleware
 ```
 
